@@ -1,0 +1,148 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Logo */
+.logo {
+    line-height: 1;
+}
+
+.logo-main {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    letter-spacing: 3px;
+}
+
+/* Menu */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: #cbd5f5;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    color: #22c55e;
+}
+
+/* ===== Content ===== */
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.container h1 {
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 28px;
+}
+
+/* ===== Field Cards ===== */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 26px;
+}
+
+.field-card {
+    background: #ffffff;
+    color: #111827;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 25px 45px rgba(0,0,0,0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.field-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.45);
+}
+
+.field-card img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+}
+
+.field-body {
+    padding: 18px;
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+    margin-bottom: 8px;
+}
+
+.badge.futsal {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.field-body h3 {
+    margin: 6px 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.price {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 14px;
+}
+
+/* Button */
+.btn {
+    display: block;
+    text-align: center;
+    background: #22c55e;
+    color: #052e16;
+    padding: 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background: #16a34a;
+}

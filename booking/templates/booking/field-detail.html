@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Field Detail | Football Field Booking</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/field-detail.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li><a href="{% url 'home' %}" class="active">สนาม</a></li>
+        <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
+        <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
+        <!-- แก้ให้ logout ถูกต้อง -->
+        <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h1 id="fieldName"></h1>
+    <div class="subtitle" id="fieldInfo"></div>
+
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr id="timeHeader">
+                    <th>วัน / เวลา</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="summary" id="summaryBox" style="display:none;">
+        <div id="summaryText"></div>
+        <div class="actions">
+            <button class="btn cancel" id="cancelBtn">ล้างการเลือก</button>
+            <button class="btn" id="confirmBtn">ยืนยันช่วงเวลา</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ===== รับ field_id จาก Django ===== */
+const fieldId = parseInt("{{ field_id }}");   // แปลงเป็น number ป้องกัน bug
+
+/* ===== URL booking จาก Django ===== */
+const bookingUrl = "{% url 'booking' %}";
+
+/* ===== Mock Data ===== */
+const fields = {
+    1: { name: "PSU Stadium", type: "ฟุตบอล 11 คน", price: 1200, open: "08:00", close: "02:00" },
+    2: { name: "Futsal Sport Complex", type: "ฟุตซอล", price: 800, open: "10:00", close: "24:00" },
+    3: { name: "สนามบอลข้างอ่างเก็บน้ำ", type: "หญ้าเทียม", price: 500, open: "16:00", close: "22:00" },
+    4: { name: "สนามฟ้า Sport Complex", type: "ฟุตซอล", price: 250, open: "08:00", close: "23:00" },
+    5: { name: "สนามคณะแพทย์", type: "หญ้าเทียม", price: 400, open: "09:00", close: "21:00" }
+};
+
+if (fields[fieldId]) {
+    document.getElementById("fieldName").innerText = fields[fieldId].name;
+    document.getElementById("fieldInfo").innerHTML = `
+        ${fields[fieldId].type} · 
+        ราคา ${fields[fieldId].price} บาท / ชั่วโมง ·
+        เปิด ${fields[fieldId].open} - ${fields[fieldId].close}
+    `;
+} else {
+    document.getElementById("fieldName").innerText = "ไม่พบข้อมูลสนาม";
+}
+
+/* ===== ตารางเวลา ===== */
+const timeHeader = document.getElementById("timeHeader");
+const tableBody = document.getElementById("tableBody");
+const summaryBox = document.getElementById("summaryBox");
+const summaryText = document.getElementById("summaryText");
+const cancelBtn = document.getElementById("cancelBtn");
+const confirmBtn = document.getElementById("confirmBtn");
+
+let selectedDay = null;
+let selectedSlots = [];
+
+/* เวลา 08:00 - 02:00 */
+const times = [];
+for (let h = 8; h <= 26; h++) {
+    const hour = h % 24;
+    times.push(`${hour.toString().padStart(2, '0')}:00`);
+}
+
+times.forEach(t => {
+    const th = document.createElement("th");
+    th.innerText = t;
+    timeHeader.appendChild(th);
+});
+
+/* วันที่ 7 วันล่วงหน้า */
+const today = new Date();
+const days = [];
+
+for (let i = 1; i <= 7; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    days.push(d);
+}
+
+days.forEach((day, dayIndex) => {
+    const tr = document.createElement("tr");
+
+    const dayTd = document.createElement("td");
+    dayTd.className = "day-col";
+    dayTd.innerText = day.toLocaleDateString("th-TH", {
+        weekday: "short",
+        day: "numeric",
+        month: "short"
+    });
+    tr.appendChild(dayTd);
+
+    times.forEach((time, timeIndex) => {
+        const td = document.createElement("td");
+        const div = document.createElement("div");
+
+        const isAvailable = Math.random() > 0.35;
+
+        div.classList.add("slot");
+
+        if (isAvailable) {
+            div.classList.add("available");
+            div.innerText = "ว่าง";
+
+            div.onclick = () => {
+                if (selectedDay !== null && selectedDay !== dayIndex) return;
+                selectedDay = dayIndex;
+
+                if (div.classList.contains("selected")) {
+                    div.classList.remove("selected");
+                    selectedSlots = selectedSlots.filter(s => s !== timeIndex);
+                } else {
+                    div.classList.add("selected");
+                    selectedSlots.push(timeIndex);
+                }
+
+                updateSummary();
+            };
+        } else {
+            div.classList.add("booked");
+            div.innerText = "ไม่ว่าง";
+        }
+
+        td.appendChild(div);
+        tr.appendChild(td);
+    });
+
+    tableBody.appendChild(tr);
+});
+
+function updateSummary() {
+    if (selectedSlots.length === 0) {
+        summaryBox.style.display = "none";
+        selectedDay = null;
+        return;
+    }
+
+    selectedSlots.sort((a, b) => a - b);
+
+    const start = times[selectedSlots[0]];
+    const endHour = (parseInt(times[selectedSlots[selectedSlots.length - 1]]) + 1) % 24;
+    const end = `${endHour.toString().padStart(2, '0')}:00`;
+    const hours = selectedSlots.length;
+
+    const dayText = days[selectedDay].toLocaleDateString("th-TH", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+    });
+
+    summaryText.innerHTML = `
+        <span>${dayText}</span> —
+        จอง <span>${hours}</span> ชั่วโมง (${start} - ${end})
+    `;
+
+    summaryBox.style.display = "flex";
+}
+
+/* ล้างการเลือก */
+cancelBtn.onclick = () => {
+    document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+    selectedSlots = [];
+    selectedDay = null;
+    summaryBox.style.display = "none";
+};
+
+/* กดยืนยัน → ไป /booking/ */
+confirmBtn.onclick = () => {
+    if (selectedSlots.length === 0) {
+        alert("กรุณาเลือกช่วงเวลาก่อน");
+        return;
+    }
+
+    selectedSlots.sort((a, b) => a - b);
+
+    const date = days[selectedDay].toISOString().split("T")[0];
+    const start = times[selectedSlots[0]];
+    const endHour = (parseInt(times[selectedSlots[selectedSlots.length - 1]]) + 1) % 24;
+    const end = `${endHour.toString().padStart(2, '0')}:00`;
+    const hours = selectedSlots.length;
+
+    window.location.href =
+        `${bookingUrl}?field=${fieldId}&date=${date}&start=${start}&end=${end}&hours=${hours}`;
+};
+</script>
+
+</body>
+</html>

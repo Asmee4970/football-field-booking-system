@@ -1,0 +1,139 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Logo */
+.logo {
+    line-height: 1;
+}
+
+.logo-main {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    letter-spacing: 3px;
+}
+
+/* Menu */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: #cbd5f5;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    color: #22c55e;
+}
+
+/* ===== Layout ===== */
+.container {
+    max-width: 1200px;
+    margin: 36px auto;
+    padding: 0 20px;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #cbd5f5;
+    margin-bottom: 24px;
+}
+
+/* ===== Dashboard Cards ===== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #ffffff;
+    color: #111827;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+.card h3 {
+    font-size: 14px;
+    font-weight: 400;
+    color: #475569;
+    margin-bottom: 10px;
+}
+
+.card .number {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ===== Actions ===== */
+.actions {
+    margin-top: 32px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 220px;
+    padding: 16px;
+    border-radius: 999px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    background: #22c55e;
+    color: #052e16;
+}
+
+.action-btn:hover {
+    background: #16a34a;
+}
+
+.action-btn.outline {
+    background: transparent;
+    border: 1px solid #22c55e;
+    color: #22c55e;
+}
+
+.action-btn.outline:hover {
+    background: rgba(34,197,94,0.1);
+}

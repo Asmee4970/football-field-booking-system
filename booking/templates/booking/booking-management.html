@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Management | Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/booking-management.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li><a href="{% url 'field_management' %}">จัดการสนาม</a></li>
+        <li><a href="{% url 'booking_management' %}" class="active">จัดการการจอง</a></li>
+        <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h1>จัดการการจองสนาม</h1>
+
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>ผู้จอง</th>
+                    <th>สนาม</th>
+                    <th>วันที่</th>
+                    <th>เวลา</th>
+                    <th>ชม.</th>
+                    <th>สลิป</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td>{{ b.user }}</td>
+                    <td>{{ b.field }}</td>
+                    <td>{{ b.date }}</td>
+                    <td>{{ b.time }}</td>
+                    <td>{{ b.hours }}</td>
+                    <td>
+                        <button class="btn view">ดูสลิป</button>
+                    </td>
+                    <td>
+                        {% if b.status == "waiting" %}
+                            <span class="status waiting">รอตรวจสอบ</span>
+                        {% elif b.status == "approved" %}
+                            <span class="status approved">อนุมัติแล้ว</span>
+                        {% else %}
+                            <span class="status rejected">ปฏิเสธ</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.status == "waiting" %}
+                            <button class="btn approve">อนุมัติ</button>
+                            <button class="btn reject">ปฏิเสธ</button>
+                        {% else %}
+                            <button class="btn approve" disabled>อนุมัติ</button>
+                            <button class="btn reject" disabled>ปฏิเสธ</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center;">ยังไม่มีรายการจอง</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

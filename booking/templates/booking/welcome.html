@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Football Field Booking</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/welcome.css' %}">
+</head>
+
+<body>
+
+    <div class="page">
+
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="logo">
+                <span class="logo-main">FOOTBALL</span>
+                <span class="logo-sub">FIELD BOOKING</span>
+            </div>
+            <div class="nav-actions">
+                <a href="{% url 'login' %}" class="btn-outline">เข้าสู่ระบบ</a>
+                <a href="{% url 'register' %}" class="btn-primary">สมัครสมาชิก</a>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+
+            <!-- Hero -->
+            <div class="hero">
+                <h1 class="welcome">WELCOME</h1>
+
+                <h2>
+                    จองสนามฟุตบอล<br>
+                    <span>ง่าย เร็ว ไม่พลาด</span>
+                </h2>
+
+                <p>ดูเวลาว่างแบบเรียลไทม์ จองได้ทันที</p>
+
+                <div class="hero-buttons">
+                    <a href="{% url 'login' %}" class="btn-primary">เริ่มต้นใช้งาน</a>
+                    <a href="{% url 'register' %}" class="btn-outline">สมัครสมาชิก</a>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature-card">
+                    <span>📅</span>
+                    <h3>ดูเวลาว่าง</h3>
+                    <p>ตารางสนามแบบเรียลไทม์</p>
+                </div>
+
+                <div class="feature-card">
+                    <span>⚽</span>
+                    <h3>เลือกสนาม</h3>
+                    <p>ฟุตบอล / ฟุตซอล</p>
+                </div>
+
+                <div class="feature-card">
+                    <span>💸</span>
+                    <h3>จอง & จ่าย</h3>
+                    <p>อัปโหลดสลิปง่าย</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            © 2026 Football Field Booking System
+        </div>
+
+    </div>
+
+</body>
+
+</html>

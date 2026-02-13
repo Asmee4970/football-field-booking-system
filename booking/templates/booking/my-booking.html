@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Booking | Football Field Booking</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/my-booking.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li><a href="{% url 'home' %}">สนาม</a></li>
+        <li><a href="{% url 'my_booking' %}" class="active">การจองของฉัน</a></li>
+        <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
+        <li>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">ออกจากระบบ</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+<div class="container">
+    <h1>การจองของฉัน</h1>
+    <p class="subtitle">ประวัติการจองสนามทั้งหมด</p>
+
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>สนาม</th>
+                    <th>วันที่</th>
+                    <th>เวลา</th>
+                    <th>ชั่วโมง</th>
+                    <th>ยอดชำระ</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% if bookings %}
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.field.name }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
+                    <td>{{ booking.hours }} ชั่วโมง</td>
+                    <td>{{ booking.total_price }} บาท</td>
+                    <td>
+                        {% if booking.status == "pending" %}
+                            <span class="status pending">รอตรวจสอบ</span>
+                        {% elif booking.status == "approved" %}
+                            <span class="status approved">อนุมัติแล้ว</span>
+                        {% else %}
+                            <span class="status rejected">ยกเลิก</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center;">
+                        ยังไม่มีรายการจอง
+                    </td>
+                </tr>
+            {% endif %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Football Field Booking</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/login.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING</span>
+    </div>
+    <div class="nav-right">
+        จองง่าย เล่นได้ทุกวัน ไม่มีพลาด ⚡
+    </div>
+</div>
+
+<!-- Login Box -->
+<div class="login-box">
+    <h1>เข้าสู่ระบบ</h1>
+    <p>Football Field Booking System</p>
+
+    <!-- 🔥 สำคัญ: ใช้ POST และ csrf -->
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+        </div>
+
+        <button type="submit" class="btn-login">เข้าสู่ระบบ</button>
+    </form>
+
+    <!-- แสดง error message -->
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color:red; margin-top:10px;">
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+
+    <div class="extra-links">
+        <a href="{% url 'register' %}">สมัครสมาชิก</a> |
+        <a href="{% url 'forgot_password' %}">ลืมรหัสผ่าน</a>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    © 2026 Football Field Booking System<br>
+    Developed by Computer Science Student
+</div>
+
+</body>
+</html>

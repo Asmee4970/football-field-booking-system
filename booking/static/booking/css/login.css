@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.logo {
+    line-height: 1;
+}
+
+.logo-main {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    letter-spacing: 3px;
+}
+
+.nav-right {
+    font-size: 14px;
+    color: #cbd5f5;
+}
+
+/* ===== Login Box ===== */
+.login-box {
+    background: #ffffff;
+    color: #111827;
+    width: 360px;
+    padding: 32px;
+    border-radius: 18px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+    text-align: center;
+}
+
+.login-box h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.login-box p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 8px 0 24px;
+}
+
+/* ===== Form ===== */
+.form-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #22c55e;
+}
+
+/* ===== Button ===== */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #22c55e;
+    border: none;
+    border-radius: 999px;
+    color: #052e16;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.btn-login:hover {
+    background: #16a34a;
+}
+
+/* ===== Links ===== */
+.extra-links {
+    margin-top: 18px;
+    font-size: 13px;
+}
+
+.extra-links a {
+    color: #22c55e;
+    text-decoration: none;
+    margin: 0 6px;
+}
+
+.extra-links a:hover {
+    text-decoration: underline;
+}
+
+/* ===== Footer ===== */
+.footer {
+    position: fixed;
+    bottom: 12px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+}

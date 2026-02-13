@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Profile | Football Field Booking</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'booking/css/profile.css' %}">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo">
+            <span class="logo-main">FOOTBALL</span>
+            <span class="logo-sub">FIELD BOOKING</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="{% url 'home' %}">สนาม</a></li>
+            <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
+            <li><a href="{% url 'profile' %}" class="active">โปรไฟล์</a></li>
+            <li>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ออกจากระบบ</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>ข้อมูลส่วนตัว</h1>
+        <p class="subtitle">รายละเอียดบัญชีผู้ใช้งาน</p>
+
+        <div class="profile-card">
+
+            <!-- Avatar -->
+            <div class="avatar">
+                <span>👤</span>
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อ - นามสกุล</label>
+                <input type="text" value="{{ request.user.get_full_name|default:request.user.username }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>อีเมล</label>
+                <input type="email" value="{{ request.user.email }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>เบอร์โทรศัพท์</label>
+                <input type="text" value="ผูกเบอร์โทรภายหลัง" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>รหัสผ่าน</label>
+                <input type="password" value="********" readonly>
+            </div>
+
+            <div class="actions">
+                <a href="{% url 'edit_profile' %}" class="btn primary">แก้ไขข้อมูล</a>
+                <a href="{% url 'change_password' %}" class="btn secondary">เปลี่ยนรหัสผ่าน</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

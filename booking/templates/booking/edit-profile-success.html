@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Success | Football Field Booking</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/profile.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li><a href="{% url 'home' %}">สนาม</a></li>
+        <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
+        <li><a href="{% url 'profile' %}" class="active">โปรไฟล์</a></li>
+        <li>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">ออกจากระบบ</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+<div class="container">
+    <div class="profile-card" style="text-align:center;">
+        <h1 style="margin-bottom:16px;">✅ แก้ไขข้อมูลสำเร็จ</h1>
+        <p style="color:#6b7280; margin-bottom:24px;">
+            ข้อมูลโปรไฟล์ของคุณได้รับการอัปเดตเรียบร้อยแล้ว
+        </p>
+
+        <a href="{% url 'profile' %}" class="btn primary">
+            กลับไปหน้าโปรไฟล์
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #e5e7eb;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Logo */
+.logo {
+    line-height: 1;
+}
+
+.logo-main {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    letter-spacing: 3px;
+}
+
+/* Menu */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: #cbd5f5;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    color: #22c55e;
+}
+
+/* ===== Content ===== */
+.container {
+    max-width: 1200px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn.add {
+    background: #22c55e;
+    color: #052e16;
+}
+
+.btn.edit {
+    background: #334155;
+    color: #e5e7eb;
+}
+
+.btn.delete {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn.save {
+    background: #16a34a;
+    color: #fff;
+}
+
+.btn.cancel {
+    background: #475569;
+    color: #e5e7eb;
+}
+
+/* ===== Field Cards ===== */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.field-card {
+    background: rgba(15,23,42,0.85);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+.field-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.field-card h3 {
+    margin: 6px 0;
+    font-size: 18px;
+}
+
+.price {
+    font-size: 14px;
+    color: #cbd5f5;
+}
+
+/* ===== Badge ===== */
+.badge {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+
+.badge.football {
+    background: #facc15;
+    color: #1f2937;
+}
+
+.badge.futsal {
+    background: #38bdf8;
+    color: #082f49;
+}
+
+/* ===== Actions ===== */
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* ===== Modal ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    background: #0f172a;
+    color: #e5e7eb;
+    width: 400px;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-box h2 {
+    margin-top: 0;
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    font-size: 13px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: #1e293b;
+    color: #e5e7eb;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}

@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Football Field Booking</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/admin-dashboard.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+    </div>
+
+    <ul class="nav-menu">
+        <li><a href="{% url 'admin_dashboard' %}" class="active">Dashboard</a></li>
+        <li><a href="{% url 'field_management' %}">จัดการสนาม</a></li>
+        <li><a href="{% url 'booking_management' %}">จัดการการจอง</a></li>
+        <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+    </ul>
+</div>
+
+<div class="container">
+    <h1>ภาพรวมระบบ</h1>
+    <p class="subtitle">ข้อมูลสรุปการใช้งานระบบจองสนาม</p>
+
+    <!-- Summary Cards -->
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <h3>จำนวนสนามทั้งหมด</h3>
+            <div class="number">
+                {{ total_fields }} สนาม
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>การจองวันนี้</h3>
+            <div class="number">
+                {{ today_bookings }} รายการ
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>รายได้วันนี้</h3>
+            <div class="number">
+                {{ today_income|floatformat:0 }} บาท
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>การจองทั้งหมด</h3>
+            <div class="number">
+                {{ total_bookings }} รายการ
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions">
+        <a href="{% url 'field_management' %}" class="action-btn">
+            ➕ จัดการสนาม
+        </a>
+        <a href="{% url 'booking_management' %}" class="action-btn outline">
+            📋 ตรวจสอบการจอง
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

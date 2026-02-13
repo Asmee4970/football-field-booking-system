@@ -1,0 +1,204 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Logo */
+.logo {
+    line-height: 1;
+}
+
+.logo-main {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.logo-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: #22c55e;
+    letter-spacing: 3px;
+}
+
+/* Menu */
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    color: #cbd5f5;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    color: #22c55e;
+}
+
+/* ===== Container ===== */
+.container {
+    max-width: 1200px;
+    margin: 28px auto;
+    padding: 0 24px;
+}
+
+.container h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 22px;
+}
+
+/* ===== Table (Light Style) ===== */
+.table-box {
+    background: #ffffff;
+    border-radius: 18px;
+    overflow-x: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+    color: #111827;
+}
+
+th, td {
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    padding: 6px;
+    font-size: 13px;
+}
+
+/* Header */
+thead th {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    font-weight: 500;
+}
+
+/* Day Column */
+.day-col {
+    background: #f8fafc;
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+/* ===== Slots ===== */
+.slot {
+    padding: 6px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s ease;
+}
+
+/* Available */
+.slot.available {
+    background: rgba(34,197,94,0.15);
+    color: #065f46;
+}
+
+.slot.available:hover {
+    background: rgba(34,197,94,0.3);
+}
+
+/* Booked */
+.slot.booked {
+    background: #e5e7eb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* Selected */
+.slot.selected {
+    background: #22c55e;
+    color: #052e16;
+    font-weight: 600;
+}
+
+/* ===== Summary ===== */
+.summary {
+    margin-top: 22px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 16px 22px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+#summaryText {
+    font-size: 14px;
+}
+
+#summaryText span {
+    font-weight: 600;
+    color: #22c55e;
+}
+
+/* ===== Buttons ===== */
+.actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #22c55e;
+    color: #052e16;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+
+.btn.cancel {
+    background: rgba(255,255,255,0.12);
+    color: #e5e7eb;
+}
+
+.btn.cancel:hover {
+    background: rgba(255,255,255,0.22);
+}
