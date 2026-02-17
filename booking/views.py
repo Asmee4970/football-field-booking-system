@@ -7,6 +7,11 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from .models import Booking, Field
 from datetime import datetime
+from django.utils import timezone
+from django.db.models import Sum
+from datetime import timedelta
+import json
+
 
 
 # PUBLIC PAGES
@@ -260,19 +265,45 @@ def forgot_password(request):
 
 @login_required
 def admin_dashboard(request):
-    if not request.user.is_superuser:
-        return redirect("home")
+    today = timezone.now().date()
 
-# mock data ชั่วคราว (ไว้ก่อนทำ Model จริง)
+    total_fields = Field.objects.count()
+    total_bookings = Booking.objects.count()
+    today_bookings = Booking.objects.filter(date=today).count()
+
+    today_income = Booking.objects.filter(
+        date=today,
+        status='approved'
+    ).aggregate(total=Sum('total_price'))['total'] or 0
+
+    # 🔥 รายได้ย้อนหลัง 7 วัน
+    days = []
+    income_data = []
+
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        total = Booking.objects.filter(
+            date=day,
+            status='approved'
+        ).aggregate(sum=Sum('total_price'))['sum'] or 0
+
+        days.append(day.strftime("%d/%m"))
+        income_data.append(float(total))
+
+    latest_bookings = Booking.objects.order_by('-id')[:5]
 
     context = {
-        "total_fields": 3,
-        "today_bookings": 5,
-        "today_income": 6400,
-        "total_bookings": 128,
+        'total_fields': total_fields,
+        'total_bookings': total_bookings,
+        'today_bookings': today_bookings,
+        'today_income': today_income,
+        'latest_bookings': latest_bookings,
+        'chart_labels': json.dumps(days),
+        'chart_data': json.dumps(income_data),
     }
 
-    return render(request, "booking/admin-dashboard.html", context)
+    return render(request, 'booking/admin-dashboard.html', context)
+
 
 
 @login_required

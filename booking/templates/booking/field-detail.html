@@ -22,7 +22,6 @@
         <li><a href="{% url 'home' %}" class="active">สนาม</a></li>
         <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
         <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
-        <!-- แก้ให้ logout ถูกต้อง -->
         <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
     </ul>
 </div>
@@ -52,13 +51,10 @@
 </div>
 
 <script>
-/* ===== รับ field_id จาก Django ===== */
-const fieldId = parseInt("{{ field_id }}");   // แปลงเป็น number ป้องกัน bug
+const fieldId = parseInt("{{ field_id }}");
 
-/* ===== URL booking จาก Django ===== */
 const bookingUrl = "{% url 'booking' %}";
 
-/* ===== Mock Data ===== */
 const fields = {
     1: { name: "PSU Stadium", type: "ฟุตบอล 11 คน", price: 1200, open: "08:00", close: "02:00" },
     2: { name: "Futsal Sport Complex", type: "ฟุตซอล", price: 800, open: "10:00", close: "24:00" },
@@ -77,7 +73,6 @@ if (fields[fieldId]) {
 } else {
     document.getElementById("fieldName").innerText = "ไม่พบข้อมูลสนาม";
 }
-
 /* ===== ตารางเวลา ===== */
 const timeHeader = document.getElementById("timeHeader");
 const tableBody = document.getElementById("tableBody");

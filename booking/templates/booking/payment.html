@@ -23,7 +23,12 @@
             <li><a href="{% url 'home' %}">สนาม</a></li>
             <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
             <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
-            <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+            <li>
+                <form action="{% url 'logout' %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ออกจากระบบ</button>
+                </form>
+            </li>
         </ul>
     </div>
 
@@ -45,27 +50,27 @@
 
                     <div class="row">
                         <span>สนาม</span>
-                        <strong class="badge">สนามฟุตบอลใหญ่</strong>
+                        <strong class="badge">{{ field_id }}</strong>
                     </div>
 
                     <div class="row">
                         <span>วันที่</span>
-                        <strong id="dateText">-</strong>
+                        <strong>{{ date }}</strong>
                     </div>
 
                     <div class="row">
                         <span>เวลา</span>
-                        <strong id="timeText">-</strong>
+                        <strong>{{ start }} - {{ end }}</strong>
                     </div>
 
                     <div class="row">
                         <span>จำนวนชั่วโมง</span>
-                        <strong id="hourText">-</strong>
+                        <strong>{{ hours }} ชั่วโมง</strong>
                     </div>
 
                     <div class="total">
                         <span>ยอดชำระ</span>
-                        <strong id="totalPrice">-</strong>
+                        <strong>{{ total }} บาท</strong>
                     </div>
                 </div>
 
@@ -81,55 +86,30 @@
                             เลขบัญชี: 123-4-56789-0
                         </div>
                     </div>
-
-                    <div class="upload">
-                        <label>อัปโหลดสลิปการโอน</label>
-                        <input type="file" accept="image/*">
-                    </div>
                 </div>
 
             </div>
 
-            <div class="actions">
-                <button class="btn back" onclick="history.back()">ย้อนกลับ</button>
-                <button class="btn confirm" onclick="finish()">ยืนยันการชำระเงิน</button>
-            </div>
+            <!-- 🔥 สำคัญมาก: FORM POST -->
+            <form method="POST" action="{% url 'create_booking' %}">
+                {% csrf_token %}
+
+                <!-- hidden ส่งข้อมูลไป backend -->
+                <input type="hidden" name="field" value="{{ field_id }}">
+                <input type="hidden" name="date" value="{{ date }}">
+                <input type="hidden" name="start" value="{{ start }}">
+                <input type="hidden" name="end" value="{{ end }}">
+                <input type="hidden" name="hours" value="{{ hours }}">
+                <input type="hidden" name="total" value="{{ total }}">
+
+                <div class="actions">
+                    <button type="button" class="btn back" onclick="history.back()">ย้อนกลับ</button>
+                    <button type="submit" class="btn confirm">ยืนยันการชำระเงิน</button>
+                </div>
+            </form>
+
         </div>
     </div>
-
-    <script>
-        const params = new URLSearchParams(window.location.search);
-
-        const date = params.get("date");
-        const start = params.get("start");
-        const end = params.get("end");
-        const hours = params.get("hours");
-        const total = params.get("total");
-
-        if (!date || !start || !end || !hours || !total) {
-            alert("ข้อมูลการจองไม่ครบ");
-            history.back();
-        }
-
-        const dateObj = new Date(date);
-        document.getElementById("dateText").innerText =
-            dateObj.toLocaleDateString("th-TH", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
-
-        document.getElementById("timeText").innerText = `${start} - ${end}`;
-        document.getElementById("hourText").innerText = `${hours} ชั่วโมง`;
-        document.getElementById("totalPrice").innerText =
-            `${Number(total).toLocaleString()} บาท`;
-
-        function finish() {
-            alert("ส่งข้อมูลการชำระเงินเรียบร้อย\nรอเจ้าของสนามตรวจสอบ");
-            window.location.href = "{% url 'my_booking' %}";
-        }
-    </script>
 
 </body>
 </html>

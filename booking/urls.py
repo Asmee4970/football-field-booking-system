@@ -12,15 +12,16 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('change-password/', views.change_password, name='change_password'),
+
     path('my-booking/', views.my_booking, name='my_booking'),
 
     path('field/<int:field_id>/', views.field_detail, name='field_detail'),
     path('booking/', views.booking, name='booking'),
     path("create-booking/", views.create_booking, name="create_booking"),
-    path("my-booking/", views.my_booking, name="my_booking"),
     path('payment/', views.payment, name='payment'),
 
-    path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    # ✅ เหลืออันเดียวพอ
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('dashboard/fields/', views.field_management, name='field_management'),
     path('dashboard/bookings/', views.booking_management, name='booking_management'),
 ]
