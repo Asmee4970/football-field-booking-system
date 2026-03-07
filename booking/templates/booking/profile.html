@@ -4,19 +4,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Profile | Football Field Booking</title>
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรไฟล์ | Football Field Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/profile.css' %}">
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
+    <nav class="navbar">
         <div class="logo">
             <span class="logo-main">FOOTBALL</span>
             <span class="logo-sub">FIELD BOOKING</span>
@@ -33,46 +29,61 @@
                 </form>
             </li>
         </ul>
-    </div>
+    </nav>
 
     <div class="container">
-        <h1>ข้อมูลส่วนตัว</h1>
-        <p class="subtitle">รายละเอียดบัญชีผู้ใช้งาน</p>
+        <div class="profile-header">
+            <h1>ข้อมูลส่วนตัว</h1>
+            <p class="subtitle">จัดการรายละเอียดบัญชีและข้อมูลการติดต่อของคุณ</p>
+        </div>
 
         <div class="profile-card">
-
-            <!-- Avatar -->
-            <div class="avatar">
-                <span>👤</span>
+            <div class="profile-intro">
+                <div class="avatar-wrapper">
+                    <div class="avatar-main">
+                        {{ request.user.username|first|upper }}
+                    </div>
+                    <div class="status-dot"></div>
+                </div>
+                <h2 class="display-name">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                <span class="user-role">สมาชิกทั่วไป</span>
             </div>
 
-            <div class="form-group">
-                <label>ชื่อ - นามสกุล</label>
-                <input type="text" value="{{ request.user.get_full_name|default:request.user.username }}" readonly>
+            <hr class="divider">
+
+            <div class="info-grid">
+                <div class="info-group">
+                    <label><i class="icon-user"></i> ชื่อ - นามสกุล</label>
+                    <div class="readonly-field">{{ request.user.get_full_name|default:request.user.username }}</div>
+                </div>
+
+                <div class="info-group">
+                    <label><i class="icon-mail"></i> อีเมล</label>
+                    <div class="readonly-field">{{ request.user.email }}</div>
+                </div>
+
+                <div class="info-group">
+                    <label><i class="icon-phone"></i> เบอร์โทรศัพท์</label>
+                    <div class="readonly-field">{{ profile.phone|default:"- ไม่ได้ระบุ -" }}</div>
+                </div>
+
+                <div class="info-group">
+                    <label><i class="icon-lock"></i> รหัสผ่าน</label>
+                    <div class="readonly-field">••••••••••••</div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>อีเมล</label>
-                <input type="email" value="{{ request.user.email }}" readonly>
+            <div class="profile-actions">
+                <a href="{% url 'edit_profile' %}" class="btn-primary">
+                    <span>แก้ไขโปรไฟล์</span>
+                </a>
+                <a href="{% url 'change_password' %}" class="btn-outline">
+                    <span>เปลี่ยนรหัสผ่าน</span>
+                </a>
             </div>
-
-            <div class="form-group">
-                <label>เบอร์โทรศัพท์</label>
-                <input type="text" value="ผูกเบอร์โทรภายหลัง" readonly>
-            </div>
-
-            <div class="form-group">
-                <label>รหัสผ่าน</label>
-                <input type="password" value="********" readonly>
-            </div>
-
-            <div class="actions">
-                <a href="{% url 'edit_profile' %}" class="btn primary">แก้ไขข้อมูล</a>
-                <a href="{% url 'change_password' %}" class="btn secondary">เปลี่ยนรหัสผ่าน</a>
-            </div>
-
         </div>
     </div>
 
 </body>
+
 </html>

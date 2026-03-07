@@ -4,115 +4,172 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Field Management | Admin</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการสนาม | Admin Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/field-management.css' %}">
 </head>
 
 <body>
 
-<!-- Navbar -->
-<div class="navbar">
-    <div class="logo">
-        <span class="logo-main">FOOTBALL</span>
-        <span class="logo-sub">FIELD BOOKING · ADMIN</span>
-    </div>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-main">FOOTBALL</span>
+            <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
 
-    <ul class="nav-menu">
-        <li><a href="{% url 'admin_dashboard' %}" class="active">Dashboard</a></li>
-        <li><a href="{% url 'field_management' %}">จัดการสนาม</a></li>
-        <li><a href="{% url 'booking_management' %}">จัดการการจอง</a></li>
-        <li><a href="{% url 'login' %}">ออกจากระบบ</a></li>
-    </ul>
-</div>
+            <li><a href="{% url 'field_management' %}" class="active">สนาม</a></li>
 
-<div class="container">
-    <div class="header">
-        <h1>จัดการสนาม</h1>
-        <button class="btn add" onclick="openModal()">➕ เพิ่มสนาม</button>
-    </div>
+            <li><a href="{% url 'booking_management' %}">การจอง</a></li>
+            <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+        </ul>
+    </nav>
 
-    <div class="field-grid">
-
-        <div class="field-card">
-            <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2">
-            <span class="badge football">ฟุตบอล 11 คน</span>
-            <h3>สนามฟุตบอลใหญ่</h3>
-            <p class="price">1,200 บาท / ชั่วโมง</p>
-            <div class="actions">
-                <button class="btn edit">แก้ไข</button>
-                <button class="btn delete">ลบ</button>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>จัดการสนาม</h1>
+                <p class="subtitle">แสดงผลและจัดการข้อมูลสนามทั้งหมดในระบบ</p>
             </div>
+            <button class="btn add" onclick="openAdd()"><span>+</span> เพิ่มสนามใหม่</button>
         </div>
 
-        <div class="field-card">
-            <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d">
-            <span class="badge futsal">ฟุตซอล</span>
-            <h3>สนามฟุตซอล</h3>
-            <p class="price">800 บาท / ชั่วโมง</p>
-            <div class="actions">
-                <button class="btn edit">แก้ไข</button>
-                <button class="btn delete">ลบ</button>
+        <div class="field-grid">
+            {% for field in fields %}
+            <div class="field-card">
+                <div class="card-img-wrapper">
+                    {% if field.image %}
+                    <img src="{{ field.image.url }}">
+                    {% else %}
+                    <img src="{% static 'booking/images/default.jpg' %}">
+                    {% endif %}
+                    <span class="badge {{ field.field_type }}">
+                        {{ field.get_field_type_display }}
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <h3>{{ field.name }}</h3>
+                    <div class="field-info">
+                        <p class="price"><span>{{ field.price }}</span> ฿ / ชม.</p>
+                        <p class="time">🕒 {{ field.open_time|time:'H:i' }} - {{ field.close_time|time:'H:i' }}</p>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn edit" onclick="openEdit(
+                            '{{ field.id }}', '{{ field.name }}', '{{ field.field_type }}', 
+                            '{{ field.price }}', '{{ field.open_time|time:'H:i' }}', '{{ field.close_time|time:'H:i' }}'
+                        )">แก้ไข</button>
+                        <a href="{% url 'delete_field' field.id %}" class="btn delete"
+                            onclick="return confirm('คุณแน่ใจใช่ไหมที่จะลบสนามนี้?')">ลบ</a>
+                    </div>
+                </div>
             </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- Modal -->
-<div class="modal" id="fieldModal">
-    <div class="modal-box">
-        <h2>เพิ่มสนาม</h2>
-
-        <div class="form-group">
-            <label>ชื่อสนาม</label>
-            <input type="text">
-        </div>
-
-        <div class="form-group">
-            <label>ประเภทสนาม</label>
-            <select>
-                <option>ฟุตบอล 11 คน</option>
-                <option>ฟุตซอล</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>ราคา / ชั่วโมง</label>
-            <input type="number">
-        </div>
-
-        <div class="form-group">
-            <label>เวลาเปิด</label>
-            <input type="time" value="08:00">
-        </div>
-
-        <div class="form-group">
-            <label>เวลาปิด</label>
-            <input type="time" value="02:00">
-        </div>
-
-        <div class="form-group">
-            <label>รูปสนาม</label>
-            <input type="file">
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn cancel" onclick="closeModal()">ยกเลิก</button>
-            <button class="btn save">บันทึก</button>
+            {% endfor %}
         </div>
     </div>
-</div>
 
-<script>
-    function openModal() {
-        document.getElementById("fieldModal").style.display = "flex";
-    }
-    function closeModal() {
-        document.getElementById("fieldModal").style.display = "none";
-    }
-</script>
+    <div class="modal" id="fieldModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modalTitle">เพิ่มสนาม</h2>
+                <button class="close-x" onclick="closeModal()">&times;</button>
+            </div>
 
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="field_id" id="field_id">
+
+                <div class="form-group">
+                    <label>ชื่อสนาม</label>
+                    <input type="text" name="name" id="name" required placeholder="ระบุชื่อสนาม">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ประเภทสนาม</label>
+                        <select name="field_type" id="field_type">
+                            <option value="football">ฟุตบอล 11 คน</option>
+                            <option value="futsal">ฟุตซอล</option>
+                            <option value="football7">สนามหญ้าเทียม</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ราคา / ชั่วโมง</label>
+                        <input type="number" name="price" id="price" required placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>เวลาเปิด</label>
+                        <input type="time" name="open_time" id="open_time">
+                    </div>
+                    <div class="form-group">
+                        <label>เวลาปิด</label>
+                        <input type="time" name="close_time" id="close_time">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>รูปภาพสนาม</label>
+                    <div class="custom-file-upload">
+                        <input type="file" name="image">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn save">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAdd() {
+            const modal = document.getElementById("fieldModal");
+            document.getElementById("modalTitle").innerText = "เพิ่มสนามใหม่";
+
+            // ล้างข้อมูลเก่า
+            document.getElementById("field_id").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("price").value = "";
+
+            // แสดง Modal
+            modal.classList.add("active");
+        }
+
+        function openEdit(id, name, type, price, open, close) {
+            const modal = document.getElementById("fieldModal");
+            document.getElementById("modalTitle").innerText = "แก้ไขข้อมูลสนาม";
+
+            document.getElementById("field_id").value = id;
+            document.getElementById("name").value = name;
+            document.getElementById("field_type").value = type;
+            document.getElementById("price").value = price;
+            document.getElementById("open_time").value = open;
+            document.getElementById("close_time").value = close;
+
+            // แสดง Modal
+            modal.classList.add("active");
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("fieldModal");
+            modal.classList.remove("active");
+        }
+
+        // ปิด Modal เมื่อคลิกพื้นหลังด้านนอก
+        window.onclick = function (event) {
+            const modal = document.getElementById("fieldModal");
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
 </body>
+
 </html>

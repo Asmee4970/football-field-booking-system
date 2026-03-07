@@ -1,17 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Football Field Booking</title>
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/register.css' %}">
 </head>
+
 <body>
 
-    <!-- Navbar -->
     <div class="navbar">
         <div class="logo">
             <span class="logo-main">FOOTBALL</span>
@@ -23,35 +24,60 @@
         <h1>สมัครสมาชิก</h1>
         <p>Football Field Booking System</p>
 
-        <!-- ✅ ต้องมี method + csrf -->
         <form method="POST">
             {% csrf_token %}
 
             {% if messages %}
-                {% for message in messages %}
-                    <p class="error-message">{{ message }}</p>
-                {% endfor %}
+            {% for message in messages %}
+            <p class="error-message">{{ message }}</p>
+            {% endfor %}
             {% endif %}
 
             <div class="form-group">
                 <label>ชื่อผู้ใช้</label>
-                <input type="text" name="username" placeholder="กรอกชื่อผู้ใช้" required>
+                <input type="text" name="username" placeholder="ระบุชื่อผู้ใช้" required>
             </div>
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" placeholder="กรอกอีเมล" required>
+                <input type="email" name="email" placeholder="example@mail.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>เบอร์โทร</label>
+                <input type="text" name="phone" placeholder="ระบุเบอร์โทรศัพท์" required>
             </div>
 
             <div class="form-group">
                 <label>รหัสผ่าน</label>
-                <input type="password" name="password1" placeholder="กรอกรหัสผ่าน" required>
+                <div class="password-wrapper">
+                    <input type="password" name="password1" id="password1" placeholder="ระบุรหัสผ่าน" required>
+                    <button type="button" class="toggle-password" onclick="togglePass('password1')">👁️</button>
+                </div>
             </div>
 
             <div class="form-group">
                 <label>ยืนยันรหัสผ่าน</label>
-                <input type="password" name="password2" placeholder="ยืนยันรหัสผ่าน" required>
+                <div class="password-wrapper">
+                    <input type="password" name="password2" id="password2" placeholder="ยืนยันรหัสผ่านอีกครั้ง"
+                        required>
+                    <button type="button" class="toggle-password" onclick="togglePass('password2')">👁️</button>
+                </div>
             </div>
+
+            <script>
+                function togglePass(fieldId) {
+                    const input = document.getElementById(fieldId);
+                    const btn = input.nextElementSibling;
+                    if (input.type === "password") {
+                        input.type = "text";
+                        btn.textContent = "🔒";
+                    } else {
+                        input.type = "password";
+                        btn.textContent = "👁️";
+                    }
+                }
+            </script>
 
             <button type="submit" class="btn-register">สมัครสมาชิก</button>
         </form>
@@ -59,7 +85,9 @@
         <div class="extra-links">
             <a href="{% url 'login' %}">มีบัญชีแล้ว? เข้าสู่ระบบ</a>
         </div>
+
     </div>
 
 </body>
+
 </html>

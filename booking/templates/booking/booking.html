@@ -4,84 +4,96 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Booking | Football Field Booking</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยืนยันการจอง - {{ field.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/booking.css' %}">
 </head>
 
 <body>
 
-<div class="navbar">
-    <div class="logo">
-        <span class="logo-main">FOOTBALL</span>
-        <span class="logo-sub">FIELD BOOKING</span>
-    </div>
-
-    <ul class="nav-menu">
-        <li><a href="{% url 'home' %}">สนาม</a></li>
-        <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
-        <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
-        <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
-    </ul>
-</div>
-
-<div class="container">
-    <h1>ยืนยันการจอง</h1>
-    <p class="subtitle">ตรวจสอบรายละเอียดก่อนยืนยัน</p>
-
-    <div class="card">
-
-        <div class="row">
-            <div>ผู้จอง</div>
-            <strong>{{ request.user.username }}</strong>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-main">FOOTBALL</span>
+            <span class="logo-sub">FIELD BOOKING</span>
         </div>
 
-        <div class="row">
-            <span>สนาม</span>
-            <strong>{{ field.name }}</strong>
+        <ul class="nav-menu">
+            <li><a href="{% url 'home' %}"  class="active">สนาม</a></li>
+            <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
+            <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
+            <li>
+                <form action="{% url 'logout' %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ออกจากระบบ</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="booking-header">
+            <h1>ยืนยันการจองสนาม</h1>
+            <p class="subtitle">กรุณาตรวจสอบรายละเอียดการจองของคุณให้ถูกต้องก่อนดำเนินการต่อ</p>
         </div>
 
-        <div class="row">
-            <span>วันที่</span>
-            <strong>{{ date }}</strong>
-        </div>
+        <div class="booking-card">
+            <div class="card-section">
+                <h3 class="section-title">ข้อมูลการจอง</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">ผู้จอง</span>
+                        <span class="value">{{ request.user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">สนาม</span>
+                        <span class="value">{{ field.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">วันที่ใช้งาน</span>
+                        <span class="value highlight">{{ date }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">ช่วงเวลา</span>
+                        <span class="value">{{ start }} - {{ end }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">ระยะเวลา</span>
+                        <span class="value">{{ hours }} ชั่วโมง</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="row">
-            <span>เวลา</span>
-            <strong>{{ start }} - {{ end }}</strong>
-        </div>
+            <div class="price-summary">
+                <div class="price-row">
+                    <span>ราคาต่อชั่วโมง</span>
+                    <span>{{ field.price }} บาท</span>
+                </div>
+                <div class="price-row total">
+                    <span>ยอดชำระสุทธิ</span>
+                    <span class="total-amount">{{ total }} บาท</span>
+                </div>
+            </div>
 
-        <div class="row">
-            <span>จำนวนชั่วโมง</span>
-            <strong>{{ hours }} ชั่วโมง</strong>
-        </div>
-
-        <div class="total">
-            <span>ราคารวม</span>
-            <strong>{{ total }} บาท</strong>
-        </div>
-
-        <div class="actions">
-            <button class="btn back" onclick="history.back()">ย้อนกลับ</button>
-
-            <form method="POST" action="{% url 'create_booking' %}" style="display:inline;">
-                {% csrf_token %}
-                <input type="hidden" name="field" value="{{ field.id }}">
-                <input type="hidden" name="date" value="{{ date }}">
-                <input type="hidden" name="start" value="{{ start }}">
-                <input type="hidden" name="end" value="{{ end }}">
-                <input type="hidden" name="hours" value="{{ hours }}">
-                <input type="hidden" name="total" value="{{ total }}">
-
-                <button type="submit" class="btn confirm">
-                    ยืนยันการจอง
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="history.back()">
+                    <span class="icon">←</span> แก้ไขการจอง
                 </button>
-            </form>
-        </div>
 
+                <form method="POST" action="{% url 'create_booking' field.id %}" class="confirm-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="date" value="{{ date }}">
+                    <input type="hidden" name="start" value="{{ start }}">
+                    <input type="hidden" name="end" value="{{ end }}">
+                    <input type="hidden" name="hours" value="{{ hours }}">
+                    
+                    <button type="submit" class="btn btn-primary">
+                        ยืนยันการจองและชำระเงิน <span class="icon">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
 
 </body>
 </html>

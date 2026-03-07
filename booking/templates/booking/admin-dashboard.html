@@ -3,76 +3,214 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Football Field Booking</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="{% static 'booking/css/admin-dashboard.css' %}">
 </head>
-
 <body>
 
-<!-- Navbar -->
-<div class="navbar">
-    <div class="logo">
-        <span class="logo-main">FOOTBALL</span>
-        <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-main">FOOTBALL</span>
+            <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="{% url 'admin_dashboard' %}" class="active">Dashboard</a></li>
+            <li><a href="{% url 'field_management' %}">สนาม</a></li>
+            <li><a href="{% url 'booking_management' %}">การจอง</a></li>
+            <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <header class="header-section">
+            <h1>Admin Dashboard</h1>
+            <p class="subtitle">ภาพรวมและสถิติการดำเนินงานของระบบ</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>จำนวนสนามทั้งหมด</h3>
+                <div class="number">{{ total_fields }}</div>
+            </div>
+            <div class="card">
+                <h3>การจองวันนี้</h3>
+                <div class="number">{{ today_bookings }}</div>
+            </div>
+            <div class="card">
+                <h3>รายได้วันนี้</h3>
+                <div class="number income">{{ today_income }} ฿</div>
+            </div>
+            <div class="card">
+                <h3>รายได้เดือนนี้</h3>
+                <div class="number income">{{ month_income }} ฿</div>
+            </div>
+            <div class="card">
+                <h3>สนามยอดฮิต</h3>
+                <div class="number highlight">{{ top_field_name }}</div>
+            </div>
+            <div class="card">
+                <h3>รอการอนุมัติ</h3>
+                <div class="number warning">{{ pending_bookings }}</div>
+            </div>
+            <div class="card">
+                <h3>การจองรวมทั้งหมด</h3>
+                <div class="number">{{ total_bookings }}</div>
+            </div>
+            <div class="card">
+                <h3>อัตราการยกเลิก</h3>
+                <div class="number danger">{{ cancel_rate }}%</div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="{% url 'field_management' %}" class="action-btn">จัดการข้อมูลสนาม</a>
+            <a href="{% url 'booking_management' %}" class="action-btn outline">ตรวจสอบรายการจอง</a>
+        </div>
+
+        <section class="chart-section">
+            <div class="chart-header">
+                <h2>วิเคราะห์รายได้</h2>
+                <div class="chart-buttons">
+                    <button class="chart-btn active" onclick="show7days()">7 วันล่าสุด</button>
+                    <button class="chart-btn" onclick="showMonth()">30 วันล่าสุด</button>
+                </div>
+            </div>
+            <div class="chart-scroll">
+                <div class="chart-container">
+                    <canvas id="incomeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="latest-section">
+            <div class="section-header">
+                <h2>รายการจองล่าสุด</h2>
+                <a href="{% url 'booking_management' %}" class="view-all">ดูทั้งหมด</a>
+            </div>
+            <div class="table-container">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>ผู้จอง</th>
+                            <th>สนาม</th>
+                            <th>วันที่</th>
+                            <th>เวลา</th>
+                            <th>สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in latest_bookings %}
+                        <tr>
+                            <td class="user-name">{{ b.user.username }}</td>
+                            <td>{{ b.field.name }}</td>
+                            <td>{{ b.date }}</td>
+                            <td>{{ b.start_time }} - {{ b.end_time }}</td>
+                            <td>
+                                <span class="status {{ b.status }}">
+                                    {{ b.status|upper }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="empty-msg">ยังไม่มีข้อมูลการจองในขณะนี้</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
-    <ul class="nav-menu">
-        <li><a href="{% url 'admin_dashboard' %}" class="active">Dashboard</a></li>
-        <li><a href="{% url 'field_management' %}">จัดการสนาม</a></li>
-        <li><a href="{% url 'booking_management' %}">จัดการการจอง</a></li>
-        <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
-    </ul>
-</div>
+    <script>
+        // รับข้อมูล JSON จาก Django Context
+        const labels7 = {{ chart_labels|safe }};
+        const data7 = {{ chart_data|safe }};
+        const labelsMonth = {{ month_labels|safe }};
+        const dataMonth = {{ month_data|safe }};
 
-<div class="container">
-    <h1>ภาพรวมระบบ</h1>
-    <p class="subtitle">ข้อมูลสรุปการใช้งานระบบจองสนาม</p>
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+        const chartBtns = document.querySelectorAll('.chart-btn');
 
-    <!-- Summary Cards -->
-    <div class="dashboard-grid">
+        // สร้าง Gradient สำหรับกราฟให้ดูโปรขึ้น
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
+        gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
 
-        <div class="card">
-            <h3>จำนวนสนามทั้งหมด</h3>
-            <div class="number">
-                {{ total_fields }} สนาม
-            </div>
-        </div>
+        // ตั้งค่า Chart.js
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels7,
+                datasets: [{
+                    label: 'รายได้',
+                    data: data7,
+                    borderColor: '#22c55e',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    tension: 0.4, // ความโค้งของเส้น
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#22c55e',
+                    pointBorderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // แก้ไขปัญหากราฟตัวใหญ่ไม่ชัด
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: 'Prompt' },
+                        bodyFont: { family: 'Prompt' },
+                        callbacks: {
+                            label: function(context) {
+                                return ' รายได้: ' + context.parsed.y.toLocaleString() + ' ฿';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: { family: 'Prompt' },
+                            callback: function(value) { return value.toLocaleString() + ' ฿'; }
+                        },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Prompt' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
 
-        <div class="card">
-            <h3>การจองวันนี้</h3>
-            <div class="number">
-                {{ today_bookings }} รายการ
-            </div>
-        </div>
+        // ฟังก์ชันจัดการปุ่มและอัปเดตกราฟ
+        function updateUI(clickedBtn, labels, data) {
+            chartBtns.forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
+            
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.update('active'); // อัปเดตพร้อม Animation
+        }
 
-        <div class="card">
-            <h3>รายได้วันนี้</h3>
-            <div class="number">
-                {{ today_income|floatformat:0 }} บาท
-            </div>
-        </div>
+        function show7days() {
+            updateUI(event.target, labels7, data7);
+        }
 
-        <div class="card">
-            <h3>การจองทั้งหมด</h3>
-            <div class="number">
-                {{ total_bookings }} รายการ
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="actions">
-        <a href="{% url 'field_management' %}" class="action-btn">
-            ➕ จัดการสนาม
-        </a>
-        <a href="{% url 'booking_management' %}" class="action-btn outline">
-            📋 ตรวจสอบการจอง
-        </a>
-    </div>
-</div>
-
+        function showMonth() {
+            updateUI(event.target, labelsMonth, dataMonth);
+        }
+    </script>
 </body>
 </html>

@@ -3,28 +3,38 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Football Field Booking</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/login.css' %}">
 </head>
 
 <body>
 
-<!-- Navbar -->
 <div class="navbar">
     <div class="logo">
         <span class="logo-main">FOOTBALL</span>
         <span class="logo-sub">FIELD BOOKING</span>
     </div>
     <div class="nav-right">
-        จองง่าย เล่นได้ทุกวัน ไม่มีพลาด ⚡
+        <a href="{% url 'welcome' %}" class="btn-back">
+            <span class="icon">←</span> ย้อนกลับ
+        </a>
     </div>
 </div>
 
 <div class="login-box">
     <h1>เข้าสู่ระบบ</h1>
     <p>Football Field Booking System</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-msg">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <form method="POST">
         {% csrf_token %}
@@ -42,21 +52,12 @@
         <button type="submit" class="btn-login">เข้าสู่ระบบ</button>
     </form>
 
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color:red; margin-top:10px;">
-                {{ message }}
-            </p>
-        {% endfor %}
-    {% endif %}
-
     <div class="extra-links">
         <a href="{% url 'register' %}">สมัครสมาชิก</a> |
         <a href="{% url 'forgot_password' %}">ลืมรหัสผ่าน</a>
     </div>
 </div>
 
-<!-- Footer -->
 <div class="footer">
     © 2026 Football Field Booking System<br>
     Developed by Computer Science Student

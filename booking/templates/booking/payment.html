@@ -4,23 +4,22 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Payment | Football Field Booking</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ชำระเงิน - Football Field Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/payment.css' %}">
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
+    <nav class="navbar">
         <div class="logo">
             <span class="logo-main">FOOTBALL</span>
             <span class="logo-sub">FIELD BOOKING</span>
         </div>
 
         <ul class="nav-menu">
-            <li><a href="{% url 'home' %}">สนาม</a></li>
+            <li><a href="{% url 'home' %}"  class="active">สนาม</a></li>
             <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
             <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
             <li>
@@ -30,86 +29,81 @@
                 </form>
             </li>
         </ul>
-    </div>
+    </nav>
 
     <div class="container">
-        <h1>ชำระเงิน</h1>
-        <p class="subtitle">โอนเงินและอัปโหลดสลิปเพื่อยืนยันการจอง</p>
+        <div class="page-header">
+            <h1>ชำระเงิน</h1>
+            <p class="subtitle">กรุณาโอนเงินตามยอดที่ระบุและอัปโหลดหลักฐานการโอนเงิน</p>
+        </div>
 
-        <div class="card">
-            <div class="grid">
+        <div class="payment-card">
+            <div class="payment-grid">
 
-                <!-- Summary -->
-                <div>
-                    <h3 class="section-title">รายละเอียดการจอง</h3>
+                <div class="summary-section">
+                    <h3 class="section-title"><span class="dot"></span> รายละเอียดการจอง</h3>
 
-                    <div class="row">
-                        <div>ผู้จอง</div>
-                        <span>{{ request.user.username }}</span>
+                    <div class="info-list">
+                        <div class="info-row">
+                            <span class="label">ผู้จอง</span>
+                            <span class="value">{{ request.user.username }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">สนาม</span>
+                            <span class="value badge-green">{{ field.name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">วันที่</span>
+                            <span class="value">{{ date }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">เวลา</span>
+                            <span class="value">{{ start }} - {{ end }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">จำนวนชั่วโมง</span>
+                            <span class="value">{{ hours }} ชม.</span>
+                        </div>
                     </div>
 
-                    <div class="row">
-                        <span>สนาม</span>
-                        <strong class="badge">{{ field_id }}</strong>
-                    </div>
-
-                    <div class="row">
-                        <span>วันที่</span>
-                        <strong>{{ date }}</strong>
-                    </div>
-
-                    <div class="row">
-                        <span>เวลา</span>
-                        <strong>{{ start }} - {{ end }}</strong>
-                    </div>
-
-                    <div class="row">
-                        <span>จำนวนชั่วโมง</span>
-                        <strong>{{ hours }} ชั่วโมง</strong>
-                    </div>
-
-                    <div class="total">
-                        <span>ยอดชำระ</span>
-                        <strong>{{ total }} บาท</strong>
+                    <div class="total-box">
+                        <span class="total-label">ยอดชำระสุทธิ</span>
+                        <span class="total-value">{{ total }} บาท</span>
                     </div>
                 </div>
 
-                <!-- Payment -->
-                <div>
-                    <h3 class="section-title">ช่องทางการชำระเงิน</h3>
-
-                    <div class="qr-box">
-                        <img src="{% static 'booking/images/qr.png' %}" alt="QR Code">
-                        <div class="bank">
-                            ธนาคารกสิกรไทย<br>
-                            ชื่อบัญชี: สนามฟุตบอล XYZ<br>
-                            เลขบัญชี: 123-4-56789-0
+                <div class="qr-section">
+                    <h3 class="section-title"><span class="dot"></span> ช่องทางชำระเงิน</h3>
+                    <div class="qr-container">
+                        <img src="{% static 'booking/images/QR.jpg' %}" alt="QR Code" class="qr-image">
+                        <div class="bank-details">
+                            <p class="bank-name">ธนาคารกสิกรไทย</p>
+                            <p class="account-name">ชื่อบัญชี: <strong>อัซมี สาและ</strong></p>
+                            <p class="account-number">905-3-47175-8</p>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- 🔥 สำคัญมาก: FORM POST -->
-            <form method="POST" action="{% url 'create_booking' %}">
+            <form method="POST" action="{% url 'upload_slip' booking.id %}" enctype="multipart/form-data"
+                class="upload-form">
                 {% csrf_token %}
-
-                <!-- hidden ส่งข้อมูลไป backend -->
-                <input type="hidden" name="field" value="{{ field_id }}">
-                <input type="hidden" name="date" value="{{ date }}">
-                <input type="hidden" name="start" value="{{ start }}">
-                <input type="hidden" name="end" value="{{ end }}">
-                <input type="hidden" name="hours" value="{{ hours }}">
-                <input type="hidden" name="total" value="{{ total }}">
+                <div class="upload-group">
+                    <label for="slip">อัปโหลดสลิปการโอนเงิน</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="slip" id="slip" required>
+                    </div>
+                </div>
 
                 <div class="actions">
-                    <button type="button" class="btn back" onclick="history.back()">ย้อนกลับ</button>
-                    <button type="submit" class="btn confirm">ยืนยันการชำระเงิน</button>
+                    <button type="button" class="btn btn-back" onclick="history.back()">ย้อนกลับ</button>
+                    <button type="submit" class="btn btn-confirm">ยืนยันและส่งหลักฐาน</button>
                 </div>
             </form>
-
         </div>
     </div>
 
 </body>
+
 </html>

@@ -1,90 +1,74 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
-    <title>Home | Football Field Booking</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เลือกสนาม | Football Field Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/home.css' %}">
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="logo">
-            <span class="logo-main">FOOTBALL</span>
-            <span class="logo-sub">FIELD BOOKING</span>
-        </div>
-
-        <ul class="nav-menu">
-            <li><a href="{% url 'home' %}" class="active">สนาม</a></li>
-            <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
-            <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
-            <li><a href="{% url 'login' %}">ออกจากระบบ</a></li>
-        </ul>
+<div class="navbar">
+    <div class="logo">
+        <span class="logo-main">FOOTBALL</span>
+        <span class="logo-sub">FIELD BOOKING</span>
     </div>
 
-    <!-- Content -->
-    <div class="container">
-        <h1>เลือกสนามที่ต้องการ</h1>
+    <ul class="nav-menu">
+        <li><a href="{% url 'home' %}" class="active">สนาม</a></li>
+        <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
+        <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
+        <li>
+                <form action="{% url 'logout' %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">ออกจากระบบ</button>
+                </form>
+            </li>
+    </ul>
+</div>
 
-        <div class="field-grid">
+<div class="container">
 
-            <div class="field-card">
-                <img src="{% static 'booking/images/psustadium.jpg' %}" alt="สนามฟุตบอล">
-                <div class="field-body">
-                    <span class="badge">ฟุตบอล 11 คน</span>
-                    <h3>PSU Stadium</h3>
-                    <div class="price">1,200 บาท / ชั่วโมง</div>
-                    <a href="{% url 'field_detail' 1 %}" class="btn">ดูรายละเอียด</a>
-                </div>
+    <h1>เลือกสนามที่ต้องการ</h1>
+
+    <div class="field-grid">
+        {% for field in fields %}
+        <div class="field-card">
+            <div class="field-image">
+                {% if field.image %}
+                    <img src="{{ field.image.url }}" alt="{{ field.name }}">
+                {% else %}
+                    <img src="{% static 'booking/images/default.jpg' %}" alt="default field">
+                {% endif %}
             </div>
 
-            <div class="field-card">
-                <img src="{% static 'booking/images/futsalsport.jpg' %}" alt="สนามฟุตบอล">
-                <div class="field-body">
-                    <span class="badge futsal">ฟุตซอล</span>
-                    <h3>Futsal Sport Complex</h3>
-                    <div class="price">800 บาท / ชั่วโมง</div>
-                    <a href="{% url 'field_detail' 2 %}" class="btn">ดูรายละเอียด</a>
-                </div>
-            </div>
+            <div class="field-body">
+                <span class="badge {{ field.field_type }}">
+                    {{ field.get_field_type_display }}
+                </span>
 
-            <div class="field-card">
-                <img src="{% static 'booking/images/khangarng.jpg' %}" alt="สนามฟุตบอล">
-                <div class="field-body">
-                    <span class="badge futsal">หญ้าเทียม</span>
-                    <h3>สนามบอลข้างอ่างเก็บน้ำ</h3>
-                    <div class="price">500 บาท / ชั่วโมง</div>
-                    <a href="{% url 'field_detail' 3 %}" class="btn">ดูรายละเอียด</a>
-                </div>
-            </div>
+                <h3>{{ field.name }}</h3>
 
-            <div class="field-card">
-                <img src="{% static 'booking/images/futsal.jpg' %}" alt="สนามฟุตบอล">
-                <div class="field-body">
-                    <span class="badge futsal">ฟุตซอล</span>
-                    <h3>สนามฟ้า Sport Complex</h3>
-                    <div class="price">250 บาท / ชั่วโมง</div>
-                    <a href="{% url 'field_detail' 4 %}" class="btn">ดูรายละเอียด</a>
+                <div class="price">
+                    <strong>{{ field.price }}</strong> บาท / ชั่วโมง
                 </div>
-            </div>
 
-            <div class="field-card">
-                <img src="{% static 'booking/images/medicine.jpg' %}" alt="สนามฟุตบอล">
-                <div class="field-body">
-                    <span class="badge futsal">หญ้าเทียม</span>
-                    <h3>สนามคณะแพทย์</h3>
-                    <div class="price">400 บาท / ชั่วโมง</div>
-                    <a href="{% url 'field_detail' 5 %}" class="btn">ดูรายละเอียด</a>
-                </div>
+                <a href="{% url 'field_detail' field.id %}" class="btn">
+                    ดูรายละเอียดการจอง
+                </a>
             </div>
-
         </div>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
+            <p style="color: #94a3b8; font-size: 18px;">ขออภัย! ยังไม่มีสนามเปิดให้บริการในขณะนี้</p>
+        </div>
+        {% endfor %}
     </div>
+
+</div>
 
 </body>
 </html>

@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'booking',
+    'booking.apps.BookingConfig',
 ]
 
 MIDDLEWARE = [
@@ -115,7 +115,42 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# Static files
+from pathlib import Path
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Login redirect
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'welcome'
+
+
+
+# settings.py
+
+# ตั้งค่าให้ส่งผ่าน SMTP ของ Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# ข้อมูลบัญชีผู้ส่ง
+EMAIL_HOST_USER = 'thekopazmee@gmail.com'  # ใส่อีเมลของคุณที่นี่
+EMAIL_HOST_PASSWORD = 'afqm uome gbcb gvjy'  # ใส่ "App Password" 16 หลัก (ไม่ใช่รหัสผ่านเมลปกติ)
+DEFAULT_FROM_EMAIL = 'Football Field Booking <thekopazmee@gmail.com>'

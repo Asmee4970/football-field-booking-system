@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ยืนยัน OTP | Football Field Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/register.css' %}">
+</head>
+
+<body>
+    <div class="register-box" style="width: 400px; text-align: center;">
+        <h1>ยืนยันอีเมล</h1>
+        <p>เราส่งรหัส OTP 6 หลักไปที่อีเมลของคุณแล้ว</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px;">{{ message }}
+        </p>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="otp" placeholder="กรอกรหัส 6 หลัก" required
+                    style="text-align: center; font-size: 24px; letter-spacing: 8px; border: 2px solid #22c55e;">
+            </div>
+            <button type="submit" class="btn-register">ยืนยันตัวตน</button>
+        </form>
+
+        <div class="extra-links" style="margin-top: 20px;">
+            <a href="{% url 'register' %}" style="color: #94a3b8; text-decoration: none;">← กลับไปหน้าสมัครสมาชิก</a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+/* สีหลักของเว็บไซต์ */
+
+:root {
+    --primary-green: #22c55e;
+    --dark-navy: #0f172a;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+}
