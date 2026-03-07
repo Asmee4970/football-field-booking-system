@@ -12,7 +12,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
+/* ===== Navbar ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -66,7 +66,6 @@ body {
     color: #22c55e;
 }
 
-/* เส้นใต้เวลา Active */
 .nav-menu a::after {
     content: '';
     position: absolute;
@@ -82,7 +81,6 @@ body {
 .nav-menu a.active::after {
     width: 100%;
 }
-
 
 /* ===== Layout Container ===== */
 .container {
@@ -244,10 +242,11 @@ body {
     transform: translateY(0);
 }
 
-/* Responsive */
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
     .navbar { padding: 15px 20px; }
     .nav-menu { gap: 15px; }
     .nav-menu a { font-size: 12px; }
+    .actions { flex-direction: column-reverse; }
+    .btn-secondary { width: 100%; }
 }

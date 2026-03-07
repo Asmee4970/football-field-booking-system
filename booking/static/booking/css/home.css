@@ -12,7 +12,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -66,7 +65,6 @@ body {
     color: #22c55e;
 }
 
-/* เส้นใต้เวลา Active */
 .nav-menu a::after {
     content: '';
     position: absolute;
@@ -83,7 +81,7 @@ body {
     width: 100%;
 }
 
-/* ===== Content Area ===== */
+/*  Content Area  */
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -99,7 +97,6 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-/* ===== Field Cards Grid (Premium Dark Card) ===== */
 .field-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -133,7 +130,6 @@ body {
     object-fit: cover;
 }
 
-/* Gradient ทับรูปภาพให้อ่านตัวหนังสือด้านบนง่ายขึ้น (ถ้ามี) */
 .field-image::after {
     content: '';
     position: absolute;
@@ -186,7 +182,6 @@ body {
     font-size: 18px;
 }
 
-/* Premium Button */
 .btn {
     display: block;
     text-align: center;
@@ -213,7 +208,7 @@ body {
     .nav-menu a { font-size: 12px; }
 }
 
-/* ===== Footer ===== */
+/*  Footer  */
 .footer {
     text-align: center;
     padding: 20px;

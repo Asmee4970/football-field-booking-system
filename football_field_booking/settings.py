@@ -142,15 +142,12 @@ LOGOUT_REDIRECT_URL = 'welcome'
 
 
 
-# settings.py
-
-# ตั้งค่าให้ส่งผ่าน SMTP ของ Gmail
+# OTP Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# ข้อมูลบัญชีผู้ส่ง
-EMAIL_HOST_USER = 'thekopazmee@gmail.com'  # ใส่อีเมลของคุณที่นี่
-EMAIL_HOST_PASSWORD = 'afqm uome gbcb gvjy'  # ใส่ "App Password" 16 หลัก (ไม่ใช่รหัสผ่านเมลปกติ)
+EMAIL_HOST_USER = 'thekopazmee@gmail.com'
+EMAIL_HOST_PASSWORD = 'afqm uome gbcb gvjy'
 DEFAULT_FROM_EMAIL = 'Football Field Booking <thekopazmee@gmail.com>'

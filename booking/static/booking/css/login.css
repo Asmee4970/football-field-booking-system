@@ -1,14 +1,12 @@
 * {
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
-    /* เพิ่ม transition ให้ทุกการตอบสนองสมูทขึ้น */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
     margin: 0;
     height: 100vh;
-    /* คงพื้นหลังเดิม */
     background: linear-gradient(135deg, #0f172a, #1e293b);
     display: flex;
     justify-content: center;
@@ -17,7 +15,6 @@ body {
     overflow: hidden;
 }
 
-/* ===== Navbar ===== */
 .navbar {
     position: fixed;
     top: 0;
@@ -28,9 +25,11 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    background: rgba(15, 23, 42, 0.7);
+    z-index: 1000;
 }
 
-/* Logo */
 .logo {
     line-height: 1;
     text-decoration: none;
@@ -55,12 +54,12 @@ body {
 .nav-right {
     font-size: 14px;
     color: #94a3b8;
+    display: flex;
+    align-items: center;
 }
 
-/* ===== Login Box (อัปเกรดเป็นพรีเมียมสไตล์) ===== */
 .login-box {
     background: #1e293b;
-    /* ใช้สีเดียวกับ Card ใน Dashboard */
     color: #fff;
     width: 380px;
     padding: 40px;
@@ -71,7 +70,6 @@ body {
     position: relative;
 }
 
-/* เพิ่มแสงเรืองจางๆ รอบกล่อง Login */
 .login-box::after {
     content: "";
     position: absolute;
@@ -94,7 +92,6 @@ body {
     margin: 10px 0 30px;
 }
 
-/* ===== Form Layout ===== */
 .form-group {
     margin-bottom: 20px;
     text-align: left;
@@ -114,28 +111,24 @@ body {
     padding: 13px 16px;
     border-radius: 12px;
     background: #0f172a;
-    /* พื้นหลัง Input มืดลงเพื่อให้ดู Modern */
     border: 1px solid #334155;
     color: #fff;
     font-size: 14px;
     outline: none;
 }
 
-/* ลูกเล่นตอนคลิกที่ช่องกรอก */
 .form-group input:focus {
     border-color: #22c55e;
     box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
     background: #161e2e;
 }
 
-/* ===== Button (Dashboard Style) ===== */
 .btn-login {
     width: 100%;
     padding: 14px;
     background: #22c55e;
     border: none;
     border-radius: 12px;
-    /* ปรับให้เหลี่ยมมนเท่า Input ดูเข้ากันมากขึ้น */
     color: #052e16;
     font-size: 16px;
     font-weight: 600;
@@ -154,7 +147,6 @@ body {
     transform: translateY(0);
 }
 
-/* ===== Links ===== */
 .extra-links {
     margin-top: 24px;
     font-size: 13px;
@@ -173,7 +165,6 @@ body {
     text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
 }
 
-/* ===== Footer ===== */
 .footer {
     position: fixed;
     bottom: 15px;
@@ -181,13 +172,6 @@ body {
     text-align: center;
     font-size: 12px;
     color: #475569;
-}
-
-/* คัดลอกไปต่อท้ายไฟล์ CSS เดิม */
-
-.nav-right {
-    display: flex;
-    align-items: center;
 }
 
 .btn-back {
@@ -211,19 +195,12 @@ body {
 }
 
 .btn-back:hover {
-    background: rgba(34, 197, 94, 0.1); /* สีเขียวจางๆ */
+    background: rgba(34, 197, 94, 0.1);
     border-color: rgba(34, 197, 94, 0.4);
     color: #22c55e;
     box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
 }
 
 .btn-back:hover .icon {
-    transform: translateX(-4px); /* ลูกศรขยับไปทางซ้ายเวลาชี้ */
-}
-
-/* ปรับแต่ง Navbar เล็กน้อยเพื่อให้ปุ่มดูเด่นขึ้น */
-.navbar {
-    backdrop-filter: blur(10px); /* เพิ่มความเบลอให้พื้นหลัง Navbar */
-    background: rgba(15, 23, 42, 0.7);
-    z-index: 1000;
+    transform: translateX(-4px);
 }
