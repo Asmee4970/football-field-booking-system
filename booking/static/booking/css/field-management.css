@@ -11,7 +11,6 @@ body {
     min-height: 100vh;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -82,7 +81,7 @@ body {
     width: 100%;
 }
 
-/* ===== Content Layout ===== */
+/* Content Layout  */
 .container {
     max-width: 1300px;
     margin: 40px auto;
@@ -108,7 +107,7 @@ body {
     margin: 5px 0 0 0;
 }
 
-/* ===== Field Cards ===== */
+/*  Field Cards  */
 .field-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -199,7 +198,7 @@ body {
     margin: 0;
 }
 
-/* ===== Buttons ===== */
+/*  Buttons  */
 .btn {
     padding: 10px 20px;
     border-radius: 8px;
@@ -270,13 +269,13 @@ body {
     color: #fff;
 }
 
-/* ===== Modal ===== */
+/*  Modal  */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(7, 10, 15, 0.85); /* พื้นหลังเข้มขึ้นเพื่อให้ฟอร์มเด่น */
+    background: rgba(7, 10, 15, 0.85);
     backdrop-filter: blur(12px);
-    display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+    display: none; 
     justify-content: center;
     align-items: center;
     z-index: 9999;
@@ -284,7 +283,6 @@ body {
     transition: opacity 0.3s ease;
 }
 
-/* เมื่อมี class active ให้แสดงผล */
 .modal.active {
     display: flex;
     opacity: 1;
@@ -300,17 +298,14 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     
-    /* Animation ตั้งต้น */
     transform: scale(0.9) translateY(30px);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* เมื่อ modal active ให้ modal-box เด้งขึ้นมา */
 .modal.active .modal-box {
     transform: scale(1) translateY(0);
 }
 
-/* ปรับสี Input ใน Modal ให้สว่างขึ้นเล็กน้อย พิมพ์ง่ายขึ้น */
 .modal .form-group input, 
 .modal .form-group select {
     background: #0f172a;
@@ -393,28 +388,26 @@ input:focus, select:focus {
 }
 
 
-/* ===== FIELD CARDS UPGRADE ===== */
+/*  FIELD CARDS   */
 .field-card {
     background: #1e293b;
     border-radius: 16px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    /* เพิ่มความสมูทตอนขยับ */
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     position: relative;
 }
 
-/* ลูกเล่นตอน Hover ให้เหมือน Card ใน Dashboard */
 .field-card:hover {
-    transform: translateY(-10px) scale(1.02); /* ลอยสูงขึ้นและขยายจางๆ */
+    transform: translateY(-10px) scale(1.02); 
     border-color: #22c55e;
-    background: #232f42; /* เปลี่ยนสีพื้นหลังนิดนึงเหมือนหน้า Dash */
+    background: #232f42; 
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 
-                0 0 20px rgba(34, 197, 94, 0.15); /* เพิ่มแสงเรืองสีเขียว */
+                0 0 20px rgba(34, 197, 94, 0.15);
 }
 
-/* เอฟเฟกต์ Glassmorphism บนรูปภาพ */
+/*  Glassmorphism  */
 .card-img-wrapper::after {
     content: "";
     position: absolute;
@@ -423,19 +416,16 @@ input:focus, select:focus {
     opacity: 0.6;
 }
 
-/* ปรับราคาให้ดูเป็น Metrics สำคัญ */
 .price span {
     color: #22c55e;
     font-size: 24px;
     font-weight: 700;
     letter-spacing: -0.5px;
-    /* ใส่เงาให้ตัวเลขดูนูนออกมา */
     text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); 
 }
 
-/* ===== MODAL ANIMATION ===== */
+/*  MODAL ANIMATION  */
 .modal {
-    /* ปรับพื้นหลัง Modal ให้เบลอขึ้นเหมือน Dashboard */
     backdrop-filter: blur(8px); 
     transition: opacity 0.3s ease;
 }
@@ -444,19 +434,17 @@ input:focus, select:focus {
     background: #1e293b;
     border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    /* สร้างลูกเล่นเด้งเข้า (Pop-in) */
     transform: scale(0.8) translateY(20px);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* คลาสที่จะใส่เพิ่มด้วย JS เมื่อเปิด Modal */
 .modal.active .modal-box {
     transform: scale(1) translateY(0);
     opacity: 1;
 }
 
-/* ===== BUTTON INTERACTION ===== */
+/*  BUTTON INTERACTION  */
 .btn {
     transition: all 0.2s ease;
     position: relative;
@@ -464,7 +452,7 @@ input:focus, select:focus {
 }
 
 .btn:active {
-    transform: scale(0.95); /* กดแล้วยุบลงเล็กน้อย */
+    transform: scale(0.95);
 }
 
 .btn.add:hover {

@@ -40,10 +40,17 @@
                     <span class="divider">•</span>
                     <span class="price-tag">ราคา <b>{{ field.price }}</b> บาท / ชม.</span>
                     <span class="divider">•</span>
-                    <span class="time-tag">เปิด <b>{{ field.open_time|time:'H:i' }} - {{ field.close_time|time:'H:i'}}</span>
+                    <span class="time-tag">เปิด <b>{{ field.open_time|time:'H:i' }} -
+                            {{field.close_time|time:'H:i'}}</span>
                 </div>
             </div>
             <a href="{% url 'home' %}" class="btn-back">← กลับหน้าหลัก</a>
+        </div>
+
+        <div class="date-navigation">
+            <button id="prevWeek" class="btn-nav">← ก่อนหน้า</button>
+            <div id="currentRangeDisplay" class="date-range-text">กำลังโหลด...</div>
+            <button id="nextWeek" class="btn-nav">ถัดไป →</button>
         </div>
 
         <div class="table-box">
@@ -70,6 +77,7 @@
     </div>
 
     <script>
+        // --- Setup ข้อมูลพื้นฐาน ---
         const bookedData = [
             {% for b in bookings %}
         {
@@ -78,140 +86,223 @@
                     end: "{{ b.end_time|time:'H:i' }}"
         },
         {% endfor %}
-        ];
+    ];
 
         const fieldId = "{{ field.id }}";
         const bookingUrl = "{% url 'booking' %}";
+        // --- ส่วนที่ 1: สร้างช่วงเวลา (Column Headers) ---
         const openTime = parseInt("{{ field.open_time|time:'H' }}");
-        const closeTime = parseInt("{{ field.close_time|time:'H' }}");
+        let closeTime = parseInt("{{ field.close_time|time:'H' }}");
 
-        // Logic สำหรับการสร้างตารางและ Event ต่างๆ
+        // ป้องกันกรณี Close Time น้อยกว่า Open Time (เช่น เปิด 18:00 ปิด 02:00)
+        let actualCloseTime = closeTime;
+        if (closeTime <= openTime) {
+            actualCloseTime = closeTime + 24;
+        }
+
         const times = [];
-        for (let h = openTime; h < closeTime; h++) {
-            times.push(String(h).padStart(2, '0') + ":00");
+        for (let h = openTime; h < actualCloseTime; h++) {
+            // ใช้ % 24 เพื่อให้เลขชั่วโมงไม่เกิน 23 (เช่น 25:00 กลายเป็น 01:00)
+            times.push(String(h % 24).padStart(2, '0') + ":00");
         }
 
         const timeHeader = document.getElementById("timeHeader");
+        // ล้างคอลัมน์เดิมออกให้หมดก่อน แล้วค่อยเติมคอลัมน์ "วัน/เวลา" กลับเข้าไป
+        timeHeader.innerHTML = '<th class="day-col">วัน / เวลา</th>';
+
         times.forEach(t => {
             const th = document.createElement("th");
             th.innerText = t;
             timeHeader.appendChild(th);
         });
 
-        const days = [];
-        const today = new Date();
-        const now = new Date();
-        const currentHour = now.getHours();
+        // --- Pagination Logic ---
+        let currentStartDate = new Date();
+        currentStartDate.setHours(0, 0, 0, 0); // รีเซ็ตเวลาให้เป็นเที่ยงคืนเพื่อการคำนวณที่แม่นยำ
+        const todayLimit = new Date(currentStartDate);
 
-        for (let i = 0; i < 7; i++) {
-            let d = new Date(today);
-            d.setDate(today.getDate() + i);
-            days.push(d);
-        }
-
-        const tableBody = document.getElementById("tableBody");
-        let selectedDay = null;
+        let selectedDateStr = null;
         let selectedSlots = [];
 
-        days.forEach((day, dayIndex) => {
-            let tr = document.createElement("tr");
-            let dayTd = document.createElement("td");
-            dayTd.className = "day-col";
-            dayTd.innerText = day.toLocaleDateString("th-TH", { day: 'numeric', month: 'short' });
-            tr.appendChild(dayTd);
+        // ฟังก์ชันหลักในการวาดตาราง
+        function renderTable(startDate) {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = ""; // ล้างตารางเก่าออกก่อน
 
-            times.forEach((time, timeIndex) => {
-                let td = document.createElement("td");
-                let div = document.createElement("div");
-                div.classList.add("slot");
+            // 1. อัปเดตข้อความช่วงวันที่ (เช่น 11 มี.ค. - 17 มี.ค. 2569)
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            const options = { day: 'numeric', month: 'short' };
+            const yearOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+            document.getElementById("currentRangeDisplay").innerText =
+                `${startDate.toLocaleDateString('th-TH', options)} - ${endDate.toLocaleDateString('th-TH', yearOptions)}`;
 
-                // ดึงปี-เดือน-วันที่ ตามเวลาท้องถิ่น
-                let year = day.getFullYear();
-                let month = String(day.getMonth() + 1).padStart(2, '0');
-                let dateNum = String(day.getDate()).padStart(2, '0');
-                let dateStr = `${year}-${month}-${dateNum}`; let hour = parseInt(time.split(":")[0]);
+            // 2. ปิดปุ่ม "ก่อนหน้า" ถ้าเป็นสัปดาห์ปัจจุบัน (ป้องกันจองย้อนหลัง)
+            document.getElementById("prevWeek").disabled = (startDate <= todayLimit);
 
-                let isBooked = bookedData.some(b => {
-                    if (b.date === dateStr) {
-                        let startHour = parseInt(b.start.split(":")[0]);
-                        let endHour = parseInt(b.end.split(":")[0]);
-                        return hour >= startHour && hour < endHour;
-                    }
-                    return false;
-                });
+            // 3. สร้างแถวของแต่ละวัน (7 วัน)
+            for (let i = 0; i < 7; i++) {
+                let day = new Date(startDate);
+                day.setDate(startDate.getDate() + i);
 
-                let isPastTime = (dateStr === now.toISOString().split("T")[0] && hour <= currentHour);
+                let tr = document.createElement("tr");
+                let dayTd = document.createElement("td");
+                dayTd.className = "day-col";
+                dayTd.innerText = day.toLocaleDateString("th-TH", { day: 'numeric', month: 'short' });
+                tr.appendChild(dayTd);
 
-                if (isBooked || isPastTime) {
-                    div.classList.add("booked");
-                    div.innerText = "ไม่ว่าง";
-                } else {
-                    div.classList.add("available");
-                    div.innerText = "ว่าง";
-                    div.onclick = () => {
-                        if (selectedDay !== null && selectedDay !== dayIndex) {
-                            alert("กรุณาเลือกช่วงเวลาภายในวันเดียวกัน");
-                            return;
+                const year = day.getFullYear();
+                const month = String(day.getMonth() + 1).padStart(2, '0');
+                const dateNum = String(day.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${dateNum}`;
+
+                times.forEach((time, timeIndex) => {
+                    let td = document.createElement("td");
+                    let div = document.createElement("div");
+                    div.classList.add("slot");
+
+                    let hour = parseInt(time.split(":")[0]);
+                    const now = new Date();
+
+                    // เช็คว่าจองแล้วหรือยัง
+                    let isBooked = bookedData.some(b => {
+                        if (b.date === dateStr) {
+                            let startH = parseInt(b.start.split(":")[0]);
+                            let endH = parseInt(b.end.split(":")[0]);
+
+                            // ถ้าระยะเวลาจองข้ามคืน (เช่น 23:00 - 01:00)
+                            if (endH < startH) endH += 24;
+
+                            // เช็คชั่วโมงปัจจุบัน (ชั่วโมง h ในลูป)
+                            let currentH = hour;
+                            if (currentH < openTime) currentH += 24; // ปรับชั่วโมงให้ตรงกับแกนเวลาของสนาม
+
+                            return currentH >= startH && currentH < endH;
                         }
-                        selectedDay = dayIndex;
-                        if (div.classList.contains("selected")) {
-                            div.classList.remove("selected");
-                            selectedSlots = selectedSlots.filter(s => s !== timeIndex);
-                        } else {
+                        return false;
+                    });
+
+                    // เช็คเวลาในอดีต
+                    let isPast = (day < todayLimit) || (dateStr === todayLimit.toISOString().split("T")[0] && hour <= now.getHours());
+
+                    if (isBooked || isPast) {
+                        div.classList.add("booked");
+                        div.innerText = "ไม่ว่าง";
+                    } else {
+                        div.classList.add("available");
+                        div.innerText = "ว่าง";
+
+                        // คืนสถานะ Selected ถ้าผู้ใช้เลือกไว้แล้วเปลี่ยนหน้าไปมา
+                        if (selectedDateStr === dateStr && selectedSlots.includes(timeIndex)) {
                             div.classList.add("selected");
-                            selectedSlots.push(timeIndex);
                         }
-                        updateSummary();
-                    };
-                }
-                td.appendChild(div);
-                tr.appendChild(td);
-            });
-            tableBody.appendChild(tr);
-        });
+
+                        div.onclick = () => {
+                            // 1. ถ้าเลือกข้ามวัน ให้ล้างค่าเก่าแล้วเริ่มเลือกใหม่ในวันนั้น
+                            if (selectedDateStr !== null && selectedDateStr !== dateStr) {
+                                document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+                                selectedSlots = [];
+                            }
+                            selectedDateStr = dateStr;
+
+                            if (selectedSlots.length === 0) {
+                                // กรณีที่ยังไม่ได้เลือกเลย: ให้ช่องนี้เป็นจุดเริ่มต้น
+                                div.classList.add("selected");
+                                selectedSlots.push(timeIndex);
+                            } else if (selectedSlots.length === 1 && selectedSlots[0] === timeIndex) {
+                                // กรณีคลิกซ้ำที่ช่องเดิม: ให้ยกเลิกการเลือก
+                                div.classList.remove("selected");
+                                selectedSlots = [];
+                                selectedDateStr = null;
+                            } else {
+                                // กรณีที่มีจุดเริ่มต้นอยู่แล้ว และคลิกจุดที่สอง (ไม่ว่าจะก่อนหน้าหรือหลังจุดแรก)
+                                const startIdx = Math.min(selectedSlots[0], timeIndex);
+                                const endIdx = Math.max(selectedSlots[0], timeIndex);
+
+                                // ตรวจสอบว่าระหว่างช่วงที่เลือก มีช่องที่ "ไม่ว่าง (booked)" หรือไม่
+                                let hasBookedInRange = false;
+                                const allSlots = tr.querySelectorAll(".slot");
+                                for (let i = startIdx; i <= endIdx; i++) {
+                                    if (allSlots[i].classList.contains("booked")) {
+                                        hasBookedInRange = true;
+                                        break;
+                                    }
+                                }
+
+                                if (hasBookedInRange) {
+                                    alert("ไม่สามารถเลือกช่วงที่มีการจองแล้วได้");
+                                    return;
+                                }
+
+                                // ล้างการเลือกเก่าในวันที่เลือกอยู่
+                                tr.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+                                selectedSlots = [];
+
+                                // เลือกทุกช่องตั้งแต่อันแรกถึงอันสุดท้ายที่คลิก
+                                for (let i = startIdx; i <= endIdx; i++) {
+                                    allSlots[i].classList.add("selected");
+                                    selectedSlots.push(i);
+                                }
+                            }
+                            updateSummary();
+                        };
+                    }
+                    td.appendChild(div);
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            }
+        }
 
         function updateSummary() {
             const summaryBox = document.getElementById("summaryBox");
-            if (selectedSlots.length === 0) {
+            if (!selectedDateStr || selectedSlots.length === 0) {
                 summaryBox.style.display = "none";
-                selectedDay = null;
                 return;
             }
 
             selectedSlots.sort((a, b) => a - b);
             let start = times[selectedSlots[0]];
-            let endHour = parseInt(times[selectedSlots[selectedSlots.length - 1]].split(":")[0]) + 1;
-            let end = String(endHour).padStart(2, '0') + ":00";
-            let hours = selectedSlots.length;
-            let dateLabel = days[selectedDay].toLocaleDateString("th-TH", { day: 'numeric', month: 'long', year: 'numeric' });
+            let endH = parseInt(times[selectedSlots[selectedSlots.length - 1]].split(":")[0]) + 1;
+            let end = String(endH).padStart(2, '0') + ":00";
+
+            let dateLabel = new Date(selectedDateStr).toLocaleDateString("th-TH", { day: 'numeric', month: 'long', year: 'numeric' });
 
             document.getElementById("summaryText").innerHTML =
-                `วันที่ <b>${dateLabel}</b> เวลา <b>${start} - ${end}</b> (${hours} ชม.)`;
+                `วันที่ <b>${dateLabel}</b> เวลา <b>${start} - ${end}</b> (${selectedSlots.length} ชม.)`;
             summaryBox.style.display = "flex";
         }
+
+        // --- Event Listeners สำหรับปุ่มกด ---
+        document.getElementById("nextWeek").onclick = () => {
+            currentStartDate.setDate(currentStartDate.getDate() + 7);
+            renderTable(currentStartDate);
+        };
+
+        document.getElementById("prevWeek").onclick = () => {
+            currentStartDate.setDate(currentStartDate.getDate() - 7);
+            renderTable(currentStartDate);
+        };
 
         document.getElementById("cancelBtn").onclick = () => {
             document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
             selectedSlots = [];
-            selectedDay = null;
+            selectedDateStr = null;
             document.getElementById("summaryBox").style.display = "none";
         };
 
         document.getElementById("confirmBtn").onclick = () => {
-            if (selectedSlots.length === 0) return;
+            if (!selectedDateStr || selectedSlots.length === 0) return;
             selectedSlots.sort((a, b) => a - b);
-            // ดึงวันที่แบบท้องถิ่นก่อนส่ง URL
-            let d = days[selectedDay];
-            let date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; let start = times[selectedSlots[0]];
-            let endHour = parseInt(times[selectedSlots[selectedSlots.length - 1]].split(":")[0]) + 1;
-            let end = String(endHour).padStart(2, '0') + ":00";
+            let start = times[selectedSlots[0]];
+            let endH = parseInt(times[selectedSlots[selectedSlots.length - 1]].split(":")[0]) + 1;
+            let end = String(endH).padStart(2, '0') + ":00";
 
-            // คำนวณจำนวนชั่วโมงตรงนี้
-            let hours = selectedSlots.length;
-
-            // เพิ่ม &hours=${hours} เข้าไปใน URL
-            window.location.href = `${bookingUrl}?field=${fieldId}&date=${date}&start=${start}&end=${end}&hours=${hours}`;
+            window.location.href = `${bookingUrl}?field=${fieldId}&date=${selectedDateStr}&start=${start}&end=${end}&hours=${selectedSlots.length}`;
         };
+
+        // เริ่มต้นทำงานครั้งแรก
+        renderTable(currentStartDate);
     </script>
 </body>
 

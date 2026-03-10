@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -118,6 +119,10 @@ def verify_otp(request):
 
 # LOGIN
 def login_view(request):
+    storage = get_messages(request)
+    for message in storage:
+        pass 
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
