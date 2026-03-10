@@ -12,7 +12,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -84,9 +83,8 @@ body {
 }
 
 
-/* =========================================
-   CONTENT AREA (FIELD DETAIL)
-   ========================================= */
+/* 
+   CONTENT AREA (FIELD DETAIL) */
 .container {
     max-width: 1300px;
     margin: 40px auto;
@@ -138,9 +136,7 @@ h1 {
     color: #22c55e;
 }
 
-/* =========================================
-   TABLE & SLOTS
-   ========================================= */
+/*TABLE & SLOTS */
 .table-box {
     background: #1e293b;
     border-radius: 24px;
@@ -215,9 +211,7 @@ th {
     border-color: #22c55e;
 }
 
-/* =========================================
-   SUMMARY & ACTIONS
-   ========================================= */
+/*  SUMMARY & ACTIONS*/
 .summary {
     position: fixed;
     bottom: 30px;

@@ -12,7 +12,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar ===== */
+/*  Navbar  */
 .navbar {
     position: sticky;
     top: 0;
@@ -82,7 +82,7 @@ body {
     width: 100%;
 }
 
-/* ===== Layout Container ===== */
+/*  Layout Container  */
 .container {
     max-width: 800px;
     margin: 50px auto;
@@ -108,7 +108,7 @@ body {
     font-size: 15px;
 }
 
-/* ===== Booking Card ===== */
+/* Booking Card  */
 .booking-card {
     background: rgba(30, 41, 59, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -159,7 +159,7 @@ body {
     font-weight: 600;
 }
 
-/* ===== Price Summary ===== */
+/*  Price Summary  */
 .price-summary {
     background: rgba(15, 23, 42, 0.5);
     border-radius: 16px;
@@ -189,7 +189,7 @@ body {
     font-size: 1.5rem;
 }
 
-/* ===== Action Buttons ===== */
+/*  Action Buttons  */
 .actions {
     display: flex;
     gap: 15px;
@@ -242,7 +242,7 @@ body {
     transform: translateY(0);
 }
 
-/* ===== Responsive ===== */
+/*  Responsive  */
 @media (max-width: 768px) {
     .navbar { padding: 15px 20px; }
     .nav-menu { gap: 15px; }
