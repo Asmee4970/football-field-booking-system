@@ -5,9 +5,7 @@ from datetime import timedelta
 
 
 
-# =========================
 # Field
-# =========================
 FIELD_TYPE = (
     ('football', 'ฟุตบอล'),
     ('futsal', 'ฟุตซอล'),
@@ -26,9 +24,7 @@ class Field(models.Model):
         return self.name
 
 
-# =========================
 # Booking
-# =========================
 class Booking(models.Model):
 
     STATUS_CHOICES = (
@@ -64,9 +60,8 @@ class Booking(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-# =========================
+
 # Profile
-# =========================
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=20)
@@ -75,9 +70,7 @@ class Profile(models.Model):
         return self.user.username
 
 
-# =========================
 # Email OTP
-# =========================
 class EmailOTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     otp = models.CharField(max_length=6)
@@ -87,9 +80,7 @@ class EmailOTP(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=5)
 
 
-# =========================
 # Payment
-# =========================
 class Payment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)

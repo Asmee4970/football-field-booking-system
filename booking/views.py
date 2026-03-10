@@ -160,6 +160,8 @@ def profile(request):
         "profile": request.user.profile
     })
 
+
+
 @login_required
 def field_detail(request, field_id):
     field = get_object_or_404(Field, id=field_id)
@@ -191,12 +193,13 @@ def booking_page(request):
         return redirect("home")
 
     field = get_object_or_404(Field, id=field_id)
-
+  
     exist = Booking.objects.filter(
-        field=field,
-        date=date,
-        start_time__lt=end,
-        end_time__gt=start
+    field=field,
+    date=date,
+    start_time__lt=end,
+    end_time__gt=start,
+    status__in=["pending", "approved"] # เพิ่มบรรทัดนี้เข้าไป
     ).exists()
 
     if exist:
