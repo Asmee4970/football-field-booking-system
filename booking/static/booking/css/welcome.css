@@ -1,13 +1,11 @@
 * {
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
-    /* เพิ่มการตอบสนองที่นุ่มนวลให้กับทุกองค์ประกอบ */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
     margin: 0;
-    /* คงพื้นหลังเดิม */
     background: linear-gradient(135deg, #0f172a, #1e293b);
     color: #fff;
     overflow-x: hidden;
@@ -19,13 +17,11 @@ body {
     flex-direction: column;
 }
 
-/* ===== Navbar ===== */
 .navbar {
     padding: 18px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* เพิ่มเส้นคั่นจางๆ ให้ดูมีมิติ */
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
@@ -57,7 +53,6 @@ body {
     text-transform: uppercase;
 }
 
-/* ===== Nav Buttons ===== */
 .nav-actions {
     display: flex;
     gap: 12px;
@@ -66,7 +61,6 @@ body {
 .btn-primary,
 .btn-outline {
     padding: 10px 22px;
-    /* กว้างขึ้นนิดหน่อยให้ดูสมดุล */
     border-radius: 999px;
     text-decoration: none;
     font-size: 14px;
@@ -100,7 +94,7 @@ body {
     background: rgba(34, 197, 94, 0.05);
 }
 
-/* ===== Main Content ===== */
+/* ===== Main Content  */
 .main {
     flex: 1;
     display: flex;
@@ -112,19 +106,16 @@ body {
     text-align: center;
 }
 
-/* ===== Hero Section ===== */
 .welcome {
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 5px;
-    /* เพิ่มระยะห่างตัวอักษรให้ดูเท่แบบ Dashboard */
     color: #64748b;
     margin-bottom: 8px;
 }
 
 .hero h2 {
     font-size: 48px;
-    /* ปรับให้ใหญ่ขึ้นเพื่อเป็นจุดดึงสายตา */
     margin: 0;
     line-height: 1.1;
     font-weight: 800;
@@ -132,7 +123,6 @@ body {
 
 .hero h2 span {
     color: #22c55e;
-    /* เพิ่มเงาเรืองแสงจางๆ ให้คำที่เน้น */
     text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
 }
 
@@ -141,7 +131,6 @@ body {
     color: #94a3b8;
     font-size: 16px;
     max-width: 500px;
-    /* จำกัดความกว้างให้อ่านง่าย */
 }
 
 .hero-buttons {
@@ -151,7 +140,6 @@ body {
     justify-content: center;
 }
 
-/* ===== Features Cards (Dashboard Style) ===== */
 .features {
     display: flex;
     gap: 24px;
@@ -160,7 +148,6 @@ body {
 
 .feature-card {
     background: #1e293b;
-    /* ใช้สีเดียวกับ Card ในหน้า Dashboard */
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 28px 24px;
@@ -170,7 +157,6 @@ body {
     overflow: hidden;
 }
 
-/* ลูกเล่นลอยตัวและแสงเรืองเมื่อ Hover */
 .feature-card:hover {
     transform: translateY(-12px);
     border-color: #22c55e;
@@ -178,7 +164,6 @@ body {
         0 0 15px rgba(34, 197, 94, 0.1);
 }
 
-/* แสงสีขาวจางๆ วิ่งผ่าน Card */
 .feature-card::before {
     content: "";
     position: absolute;
@@ -199,7 +184,6 @@ body {
     font-size: 32px;
     display: block;
     margin-bottom: 12px;
-    /* ใส่เงาสีเขียวให้ไอคอน */
     filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.3));
 }
 
@@ -226,7 +210,6 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.02);
 }
 
-/* ปุ่มเล็กลงใน Footer ถ้าจำเป็น */
 .footer-link {
     color: #64748b;
     text-decoration: none;
