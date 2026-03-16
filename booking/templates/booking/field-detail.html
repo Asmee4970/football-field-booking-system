@@ -132,7 +132,7 @@
                 let year = day.getFullYear();
                 let month = String(day.getMonth() + 1).padStart(2, '0');
                 let date = String(day.getDate()).padStart(2, '0');
-                let dateStr = `${year}-${month}-${date}`;
+                let dateStr = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
 
                 let tr = document.createElement("tr");
                 let dayTd = document.createElement("td");
