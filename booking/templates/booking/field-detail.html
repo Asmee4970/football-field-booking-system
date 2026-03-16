@@ -129,7 +129,10 @@
             for (let i = 0; i < 7; i++) {
                 let day = new Date(startDate);
                 day.setDate(startDate.getDate() + i);
-                let dateStr = day.toISOString().split('T')[0];
+                let year = day.getFullYear();
+                let month = String(day.getMonth() + 1).padStart(2, '0');
+                let date = String(day.getDate()).padStart(2, '0');
+                let dateStr = `${year}-${month}-${date}`;
 
                 let tr = document.createElement("tr");
                 let dayTd = document.createElement("td");

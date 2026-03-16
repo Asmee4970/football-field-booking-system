@@ -12,7 +12,6 @@
 
 <body>
 
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
             <span class="logo-main">FOOTBALL</span>
@@ -55,8 +54,11 @@
                     {% for booking in bookings %}
 
                     <tr>
+                        <td>
+                            {{ booking.user.username}}<br>
+                            <small style="color: #a0aec0;">{{ booking.user.profile.phone }}</small>
+                        </td>
 
-                        <td>{{ booking.user.username }}</td>
                         <td>{{ booking.field.name }}</td>
                         <td>{{ booking.date }}</td>
                         <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
