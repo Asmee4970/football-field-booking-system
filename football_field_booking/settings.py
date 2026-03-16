@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-oc&=*%a9d-2vws2xp0w%(unr_d@9he4v=xv3_ia6n71^k&a78j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['footballbookingfield.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 # Application definition
 
