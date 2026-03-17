@@ -140,7 +140,7 @@
         gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
         gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
 
-        // ตั้งค่า Chart.js
+        //ตั้งค่าChart.js
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -192,7 +192,7 @@
             }
         });
 
-        // ฟังก์ชันจัดการปุ่มและอัปเดตกราฟ
+        //ฟังก์ชันจัดการปุ่มและกราฟ
         function updateUI(clickedBtn, labels, data) {
             chartBtns.forEach(btn => btn.classList.remove('active'));
             clickedBtn.classList.add('active');
