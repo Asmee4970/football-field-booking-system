@@ -49,15 +49,18 @@ class Booking(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    # เพิ่มฟิลด์เหล่านี้
+    hours = models.IntegerField()
     water_packs = models.IntegerField(default=0)
     balls = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # คำนวณอัตโนมัติ: 1 ชม. = น้ำ 2, บอล 2
-        if not self.pk: # ทำเฉพาะตอนสร้าง Booking ใหม่
+        # ตรวจสอบว่าเป็นการสร้างข้อมูลใหม่ (ยังไม่มี ID)
+        if not self.pk:
+            # น้ำดื่ม: จำนวนชั่วโมง x 2
             self.water_packs = self.hours * 2
-            self.balls = self.hours * 2
+            # ลูกบอล: ให้ 2 ลูกเสมอ ไม่ว่าจะเตะกี่ชั่วโมง
+            self.balls = 2
+            
         super().save(*args, **kwargs)
 
     def __str__(self):
