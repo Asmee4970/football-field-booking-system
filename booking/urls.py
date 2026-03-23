@@ -41,6 +41,7 @@ urlpatterns = [
 
     #Booking management
     path('dashboard/bookings/', views.booking_management, name='booking_management'),
+    path('add-walkin/', views.add_walkin_booking, name='add_walkin_booking'),
     path('approve-booking/<int:booking_id>/', views.approve_booking, name='approve_booking'),
     path('reject-booking/<int:booking_id>/', views.reject_booking, name='reject_booking'),
     path("dashboard/bookings/cancel/<int:booking_id>/",views.cancel_booking,name="cancel_booking"),

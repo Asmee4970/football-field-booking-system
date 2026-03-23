@@ -52,35 +52,39 @@
                     </thead>
                     <tbody>
                         {% if bookings %}
-                            {% for booking in bookings %}
-                            <tr>
-                                <td class="field-info">
-                                    <span class="name">{{ booking.field.name }}</span>
-                                </td>
-                                <td>{{ booking.date|date:"d M Y" }}</td>
-                                <td class="time-slot">{{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }}</td>
-                                <td>{{ booking.hours }} ชม.</td>
-                                <td class="total-price">{{ booking.total_price }} บาท</td>
-                                <td>
-                                    {% if booking.status == "pending" %}
-                                        <span class="status-badge pending">รอตรวจสอบ</span>
-                                    {% elif booking.status == "approved" %}
-                                        <span class="status-badge approved">อนุมัติแล้ว</span>
-                                    {% else %}
-                                        <span class="status-badge rejected">ยกเลิก</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        {% for booking in bookings %}
+                        <tr>
+                            <td class="field-info">
+                                {% if booking.field %}
+                                <span class="name">{{ booking.field.name }}</span>
+                                {% else %}
+                                <span class="name" style="color: red;">สนามถูกลบออกจากระบบ</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ booking.date|date:"d M Y" }}</td>
+                            <td class="time-slot">{{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }}</td>
+                            <td>{{ booking.hours }} ชม.</td>
+                            <td class="total-price">{{ booking.total_price }} บาท</td>
+                            <td>
+                                {% if booking.status == "pending" %}
+                                <span class="status-badge pending">รอตรวจสอบ</span>
+                                {% elif booking.status == "approved" %}
+                                <span class="status-badge approved">อนุมัติแล้ว</span>
+                                {% else %}
+                                <span class="status-badge rejected">ยกเลิก</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
                         {% else %}
-                            <tr>
-                                <td colspan="6" class="empty-state">
-                                    <div class="empty-content">
-                                        <p>คุณยังไม่มีประวัติการจองสนาม</p>
-                                        <a href="{% url 'home' %}" class="btn-start">เริ่มจองสนามตอนนี้</a>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <div class="empty-content">
+                                    <p>คุณยังไม่มีประวัติการจองสนาม</p>
+                                    <a href="{% url 'home' %}" class="btn-start">เริ่มจองสนามตอนนี้</a>
+                                </div>
+                            </td>
+                        </tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -89,4 +93,5 @@
     </div>
 
 </body>
+
 </html>

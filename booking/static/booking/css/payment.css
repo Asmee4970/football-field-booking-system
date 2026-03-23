@@ -12,7 +12,7 @@ body {
     padding-bottom: 50px;
 }
 
-/* ===== Navbar (Glassmorphism) ===== */
+/*  Navbar (Glassmorphism)  */
 * {
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
@@ -27,7 +27,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -81,7 +80,6 @@ body {
     color: #22c55e;
 }
 
-/* เส้นใต้เวลา Active */
 .nav-menu a::after {
     content: '';
     position: absolute;
@@ -98,7 +96,6 @@ body {
     width: 100%;
 }
 
-/* ===== Layout ===== */
 .container {
     max-width: 900px;
     margin: 50px auto;
@@ -121,7 +118,6 @@ body {
     font-size: 15px;
 }
 
-/* ===== Payment Card ===== */
 .payment-card {
     background: rgba(30, 41, 59, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);

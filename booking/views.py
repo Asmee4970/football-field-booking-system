@@ -128,7 +128,7 @@ def login_view(request):
         password = request.POST.get("password")
 
         user = authenticate(request, username=username, password=password)
-
+        
         if user is not None:
             if not user.is_active:
                 messages.error(request, "กรุณายืนยันอีเมลก่อน")
@@ -184,27 +184,37 @@ def field_detail(request, field_id):
 @login_required
 def booking_page(request):
     field_id = request.GET.get("field")
-    date = request.GET.get("date")
+    date_str = request.GET.get("date") # เปลี่ยนชื่อตัวแปรนิดหน่อยเพื่อไม่ให้งง
     start = request.GET.get("start")
     end = request.GET.get("end")
     hours = request.GET.get("hours")
 
-    if not all([field_id, date, start, end, hours]):
+    if not all([field_id, date_str, start, end, hours]):
         return redirect("home")
 
     try:
         hours = int(hours)
+        # แปลง string ให้เป็นออบเจกต์ Date และ Time เพื่อเอามาเปรียบเทียบ
+        booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        booking_start = datetime.strptime(start, "%H:%M").time()
     except ValueError:
         return redirect("home")
 
     field = get_object_or_404(Field, id=field_id)
-  
+    
+    # --- 🛑 1. ดักจับการพิมพ์ URL จองเวลาในอดีต ---
+    now = datetime.now()
+    if booking_date < now.date() or (booking_date == now.date() and booking_start < now.time()):
+        messages.error(request, "ไม่สามารถจองเวลาในอดีตได้")
+        return redirect("field_detail", field.id)
+
+    # --- 🛑 2. ดักจับการจองทับเวลาคนอื่น (ที่คุณมีอยู่แล้ว) ---
     exist = Booking.objects.filter(
-    field=field,
-    date=date,
-    start_time__lt=end,
-    end_time__gt=start,
-    status__in=["pending", "approved"] # เพิ่มบรรทัดนี้เข้าไป
+        field=field,
+        date=booking_date,
+        start_time__lt=end,
+        end_time__gt=start,
+        status__in=["pending", "approved"] 
     ).exists()
 
     if exist:
@@ -215,7 +225,7 @@ def booking_page(request):
 
     context = {
         "field": field,
-        "date": date,
+        "date": date_str,
         "start": start,
         "end": end,
         "hours": hours,
@@ -372,57 +382,98 @@ def admin_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
 
-    today = timezone.now().date()
-    start_of_month = today.replace(day=1)
+    # --- ส่วนเดิมของคุณ ---
+    now = timezone.localtime(timezone.now())
+    today = now.date()
+    current_time = now.time()
+    tomorrow = today + timedelta(days=1)
 
-    total_fields = Field.objects.count()
     today_bookings = Booking.objects.filter(date=today).count()
     today_income = Booking.objects.filter(date=today, status='approved').aggregate(total=Sum('total_price'))['total'] or 0
-    month_income = Booking.objects.filter(date__gte=start_of_month, status='approved').aggregate(total=Sum('total_price'))['total'] or 0
+    monthly_income = Booking.objects.filter(date__month=today.month, date__year=today.year, status='approved').aggregate(total=Sum('total_price'))['total'] or 0
+    pending_bookings = Booking.objects.filter(status='pending').count()
     
     top_field_query = Booking.objects.values('field__name').annotate(count=Count('id')).order_by('-count').first()
     top_field_name = top_field_query['field__name'] if top_field_query else "ไม่มีข้อมูล"
-    
-    pending_bookings = Booking.objects.filter(status='pending').count()
-    total_bookings = Booking.objects.count()
-    
-    rejected_count = Booking.objects.filter(status='rejected').count()
-    cancel_rate = round((rejected_count / total_bookings * 100), 1) if total_bookings > 0 else 0
 
-    days_7 = []
-    income_7 = []
+    all_fields = Field.objects.all() # ดึงสนามทั้งหมดมาใช้ใน Modal และ Live Status
+    
+    live_status = []
+    for f in all_fields:
+        active_booking = Booking.objects.filter(
+            field=f, date=today, status='approved',
+            start_time__lte=current_time, end_time__gt=current_time
+        ).first()
+        live_status.append({'field_name': f.name, 'is_occupied': bool(active_booking), 'booking': active_booking})
+
+    today_schedules = Booking.objects.filter(date=today, status='approved').select_related("field", "user").order_by("start_time")
+    tomorrow_schedules = Booking.objects.filter(date=tomorrow, status='approved').select_related("field", "user").order_by("start_time")
+
+    for b in today_schedules:
+        dummy_date = datetime(2000, 1, 1)
+        start_dt = datetime.combine(dummy_date, b.start_time)
+        end_dt = datetime.combine(dummy_date, b.end_time)
+        b.water_packs = int((end_dt - start_dt).total_seconds() / 3600)
+
+    # กราฟ (เหมือนเดิม)
+    days_7, income_7 = [], []
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
         total = Booking.objects.filter(date=day, status='approved').aggregate(sum=Sum('total_price'))['sum'] or 0
         days_7.append(day.strftime("%d/%m"))
         income_7.append(float(total))
 
-    days_30 = []
-    income_30 = []
+    days_30, income_30 = [], []
     for i in range(29, -1, -1):
         day = today - timedelta(days=i)
         total = Booking.objects.filter(date=day, status='approved').aggregate(sum=Sum('total_price'))['sum'] or 0
         days_30.append(day.strftime("%d/%m"))
         income_30.append(float(total))
 
-    latest_bookings = Booking.objects.select_related("field", "user").order_by("-id")[:5]
-
+    # --- ส่วนที่เพิ่ม/แก้ไข ---
     context = {
-        "total_fields": total_fields,
+        "all_fields": all_fields, # เพิ่มเพื่อให้เลือกสนามใน Modal ได้
+        "now": now,
         "today_bookings": today_bookings,
         "today_income": today_income,
-        "month_income": month_income,
-        "top_field_name": top_field_name,
+        "monthly_income": monthly_income,
         "pending_bookings": pending_bookings,
-        "total_bookings": total_bookings,
-        "cancel_rate": cancel_rate,
-        "latest_bookings": latest_bookings,
+        "top_field_name": top_field_name,
+        "live_status": live_status,
+        "today_schedules": today_schedules,
+        "tomorrow_schedules": tomorrow_schedules,
         "chart_labels": json.dumps(days_7),
         "chart_data": json.dumps(income_7),
         "month_labels": json.dumps(days_30),
         "month_data": json.dumps(income_30),
     }
     return render(request, "booking/admin-dashboard.html", context)
+
+# ฟังก์ชันบันทึกการจอง Walk-in
+@login_required
+def create_walkin_booking(request):
+    if request.method == "POST" and request.user.is_superuser:
+        field_id = request.POST.get('field')
+        date = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        customer_name = request.POST.get('customer_name') # ใช้ระบุชื่อกรณี Walk-in
+        
+        field = Field.objects.get(id=field_id)
+        
+        # คำนวณราคา (ตัวอย่าง: ชั่วโมงละ 500 หรือตามราคาที่ตั้งไว้ใน Model Field)
+        # Booking.objects.create(...)
+        # ตรงนี้ให้เขียน Logic การบันทึกให้ตรงกับ Model Booking ของคุณ
+        Booking.objects.create(
+            user=request.user, # หรือผูกกับ User กลางสำหรับ Walk-in
+            field=field,
+            date=date,
+            start_time=start_time,
+            end_time=end_time,
+            status='approved', # Walk-in อนุมัติทันที
+            total_price=0, # คำนวณตามจริง
+        )
+    return redirect('admin_dashboard')
 
 @login_required
 def field_management(request):
@@ -460,10 +511,70 @@ def delete_field(request, field_id):
     field.delete()
     return redirect("field_management")
 
+from django.db.models import Q
+
+
+
 @login_required
 def booking_management(request):
+    if not request.user.is_superuser:
+        return redirect("home")
+
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+
     bookings = Booking.objects.select_related("user", "field").order_by("-created_at")
-    return render(request, "booking/booking-management.html", {"bookings": bookings})
+    
+    # ดึงรายชื่อสนามทั้งหมดไปใช้ใน Modal
+    fields = Field.objects.all()
+
+    if search_query:
+        bookings = bookings.filter(
+            Q(user__username__icontains=search_query) | 
+            Q(field__name__icontains=search_query)
+        )
+
+    if status_filter:
+        bookings = bookings.filter(status=status_filter)
+
+    context = {
+        "bookings": bookings,
+        "fields": fields, # ส่งไปให้ Modal เลือกสนาม
+        "search_query": search_query,
+        "status_filter": status_filter,
+    }
+    return render(request, "booking/booking-management.html", context)
+
+# ฟังก์ชันสำหรับบันทึก Walk-in
+@login_required
+def add_walkin_booking(request):
+    if request.method == "POST" and request.user.is_superuser:
+        username = request.POST.get('username')
+        field_id = request.POST.get('field_id')
+        date = request.POST.get('date')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+
+        # หา User หรือสร้างใหม่ถ้าไม่มี (สำหรับ Walk-in)
+        user, created = User.objects.get_or_create(username=username)
+        field = get_object_or_404(Field, id=field_id)
+
+        # คำนวณชั่วโมง (Logic คร่าวๆ)
+        fmt = '%H:%M'
+        tdelta = datetime.strptime(end_time, fmt) - datetime.strptime(start_time, fmt)
+        hours = tdelta.seconds / 3600
+
+        Booking.objects.create(
+            user=user,
+            field=field,
+            date=date,
+            start_time=start_time,
+            end_time=end_time,
+            hours=hours,
+            total_price=hours * field.price,
+            status='approved', # Walk-in อนุมัติทันที
+        )
+    return redirect('booking_management')
 
 @login_required
 def cancel_booking(request, booking_id):

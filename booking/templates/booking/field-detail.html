@@ -148,6 +148,9 @@
                     let hour = parseInt(time.split(":")[0]);
                     const now = new Date();
 
+                    // สร้างวันที่ปัจจุบันตาม Timezone ของไทย (Local Time)
+                    const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
                     // ตรวจสอบสถานะการจอง
                     let bookingStatus = null;
                     bookedData.forEach(b => {
@@ -163,12 +166,13 @@
                         }
                     });
 
-                    let isPast = (day < todayLimit) || (dateStr === todayLimit.toISOString().split("T")[0] && hour <= now.getHours());
+                    // แก้ไขเงื่อนไข isPast โดยเทียบกับ todayStr ที่เป็นเวลา Local 
+                    let isPast = (day < todayLimit) || (dateStr === todayStr && hour <= now.getHours());
 
                     if (isPast || bookingStatus === 'booked') {
                         div.classList.add("booked");
                         div.innerText = "ไม่ว่าง";
-                    } else if (bookingStatus === 'pending') {
+                    } else if (bookingStatus === 'pending') {   
                         div.classList.add("pending");
                         div.innerText = "รอยืนยัน";
                     } else {

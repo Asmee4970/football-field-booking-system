@@ -1,16 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Football Field Booking</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <link rel="stylesheet" href="{% static 'booking/css/admin-dashboard.css' %}">
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -28,51 +28,196 @@
 
     <div class="container">
         <header class="header-section">
-            <h1>Admin Dashboard</h1>
-            <p class="subtitle">ภาพรวมและสถิติการดำเนินงานของระบบ</p>
+            <h1>Admin Dashboard (Operations)</h1>
+            <p class="subtitle">จัดการหน้างานและภาพรวมประจำวัน</p>
         </header>
 
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>จำนวนสนามทั้งหมด</h3>
-                <div class="number">{{ total_fields }}</div>
+        {% if pending_bookings > 0 %}
+        <div class="alert-banner warning">
+            <div class="alert-text">
+                <strong>⚠️ Action Required:</strong> มีสลิปโอนเงินรอตรวจสอบ {{ pending_bookings }} รายการ
             </div>
+            <a href="{% url 'booking_management' %}" class="btn-check">ตรวจสอบเลย</a>
+        </div>
+        {% endif %}
+
+        <div class="dashboard-grid">
             <div class="card">
                 <h3>การจองวันนี้</h3>
                 <div class="number">{{ today_bookings }}</div>
             </div>
             <div class="card">
                 <h3>รายได้วันนี้</h3>
-                <div class="number income">{{ today_income }} ฿</div>
+                <div class="number income">{{ today_income|floatformat:0 }} ฿</div>
             </div>
             <div class="card">
                 <h3>รายได้เดือนนี้</h3>
-                <div class="number income">{{ month_income }} ฿</div>
-            </div>
-            <div class="card">
-                <h3>สนามยอดฮิต</h3>
-                <div class="number highlight">{{ top_field_name }}</div>
+                <div class="number income">{{ monthly_income|floatformat:0 }} ฿</div>
             </div>
             <div class="card">
                 <h3>รอการอนุมัติ</h3>
                 <div class="number warning">{{ pending_bookings }}</div>
             </div>
             <div class="card">
-                <h3>การจองรวมทั้งหมด</h3>
-                <div class="number">{{ total_bookings }}</div>
-            </div>
-            <div class="card">
-                <h3>อัตราการยกเลิก</h3>
-                <div class="number danger">{{ cancel_rate }}%</div>
+                <h3>สนามยอดฮิต</h3>
+                <div class="number highlight" style="font-size: 22px;">{{ top_field_name }}</div>
             </div>
         </div>
 
-        <div class="actions">
+        <div class="actions" style="margin-bottom: 30px;">
+            <a href="javascript:void(0)" class="action-btn walk-in" onclick="openModal()">
+                <span style="font-size:18px; margin-right:5px;">+</span> สร้างการจองใหม่ (Walk-in)
+            </a>
             <a href="{% url 'field_management' %}" class="action-btn">จัดการข้อมูลสนาม</a>
-            <a href="{% url 'booking_management' %}" class="action-btn outline">ตรวจสอบรายการจอง</a>
+            <a href="{% url 'booking_management' %}" class="action-btn outline">ตรวจสอบรายการจองทั้งหมด</a>
         </div>
 
-        <section class="chart-section">
+        <div id="walkinModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>สร้างการจองใหม่ (Walk-in)</h2>
+                    <span class="close" onclick="closeModal()">&times;</span>
+                </div>
+                <form method="POST" action="{% url 'add_walkin_booking' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>ชื่อลูกค้า (Username)</label>
+                        <input type="text" name="username" required placeholder="ระบุชื่อผู้ใช้งาน หรือ ชื่อลูกค้า">
+                    </div>
+
+                    <div class="form-group">
+                        <label>เลือกสนาม</label>
+                        <select name="field_id" required>
+                            <option value="">-- เลือกสนาม --</option>
+                            {% for field in fields %}
+                            <option value="{{ field.id }}">{{ field.name }} ({{ field.price }} ฿/ชม.)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>วันที่จอง</label>
+                        <input type="date" name="date" required value="{% now 'Y-m-d' %}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>เวลาเริ่ม</label>
+                            <input type="time" name="start_time" required>
+                        </div>
+                        <div class="form-group">
+                            <label>เวลาสิ้นสุด</label>
+                            <input type="time" name="end_time" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn cancel" onclick="closeBookingModal()">ยกเลิก</button>
+                        <button type="submit" class="btn approve">ยืนยันการจอง</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <section class="live-status-section">
+            <div class="section-header" style="margin-bottom: 20px;">
+                <h2 style="color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <span class="live-dot-header"></span> สถานะสนาม (Real-Time)
+                </h2>
+                <span class="badge" style="background: #0f172a; border: 1px solid #334155;">อัปเดตล่าสุดเวลา: {{
+                    now|time:"H:i" }} น.</span>
+            </div>
+            <div class="live-grid">
+                {% for item in live_status %}
+                <div class="live-card {% if item.is_occupied %}occupied{% else %}available{% endif %}">
+                    <div class="live-card-header">
+                        <h4>{{ item.field_name }}</h4>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="live-card-body">
+                        {% if item.is_occupied %}
+                        <p class="status-text occupied-text">กำลังเตะ</p>
+                        <p class="detail-text">ลูกค้า: {{ item.booking.user.username }}</p>
+                        <p class="detail-text">ถึงเวลา: <strong>{{ item.booking.end_time|time:"H:i" }} น.</strong></p>
+                        {% else %}
+                        <p class="status-text available-text">ว่าง</p>
+                        <p class="detail-text" style="color: #64748b;">รอรับลูกค้าใหม่</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="schedule-section">
+            <div class="section-header">
+                <h2>⚽ คิวสนามวันนี้ (Today's Schedule)</h2>
+            </div>
+            <div class="table-container">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>เวลาเตะ</th>
+                            <th>สนาม</th>
+                            <th>ลูกค้า (ผู้จอง)</th>
+                            <th>สิ่งที่พนักงานต้องเตรียม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in today_schedules %}
+                        <tr>
+                            <td class="time-col">{{ b.start_time|time:"H:i" }} - {{ b.end_time|time:"H:i" }}</td>
+                            <td><span class="highlight-field">{{ b.field.name }}</span></td>
+                            <td class="user-name">{{ b.user.username }}</td>
+                            <td>
+                                💧 เตรียมน้ำดื่ม <strong style="color: #38bdf8; font-size: 16px;">{{ b.water_packs
+                                    }}</strong> แพ็ค
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-msg" style="color:#22c55e; text-align:center;">✅
+                                วันนี้ไม่มีคิวแล้ว พนักงานพักผ่อนได้</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="schedule-section tomorrow">
+            <div class="section-header">
+                <h2 style="color: #94a3b8;">📅 คิวพรุ่งนี้ (Tomorrow's Preview)</h2>
+                <span class="badge">ยอดจองพรุ่งนี้ {{ tomorrow_schedules|length }} คิว</span>
+            </div>
+            <div class="table-container">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>เวลาเตะ</th>
+                            <th>สนาม</th>
+                            <th>ลูกค้า (ผู้จอง)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in tomorrow_schedules %}
+                        <tr>
+                            <td class="time-col">{{ b.start_time|time:"H:i" }} - {{ b.end_time|time:"H:i" }}</td>
+                            <td>{{ b.field.name }}</td>
+                            <td class="user-name">{{ b.user.username }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="empty-msg" style="text-align:center;">พรุ่งนี้ยังไม่มีคิวจอง
+                                สามารถจัดเวรหยุดได้</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="chart-section" style="margin-bottom: 80px;">
             <div class="chart-header">
                 <h2>วิเคราะห์รายได้</h2>
                 <div class="chart-buttons">
@@ -81,57 +226,34 @@
                 </div>
             </div>
             <div class="chart-scroll">
-                <div class="chart-container">
+                <div class="chart-container" style="position: relative; height:300px; width:100%">
                     <canvas id="incomeChart"></canvas>
                 </div>
             </div>
         </section>
 
-        <section class="latest-section">
-            <div class="section-header">
-                <h2>รายการจองล่าสุด</h2>
-                <a href="{% url 'booking_management' %}" class="view-all">ดูทั้งหมด</a>
-            </div>
-            <div class="table-container">
-                <table class="booking-table">
-                    <thead>
-                        <tr>
-                            <th>ผู้จอง</th>
-                            <th>สนาม</th>
-                            <th>วันที่</th>
-                            <th>เวลา</th>
-                            <th>สถานะ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in latest_bookings %}
-                        <tr>
-                            <td class="user-name">{{ b.user.username }}</td>
-                            <td>{{ b.field.name }}</td>
-                            <td>{{ b.date }}</td>
-                            <td>{{ b.start_time }} - {{ b.end_time }}</td>
-                            <td>
-                                <span class="status {{ b.status }}">
-                                    {{ b.status|upper }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="empty-msg">ยังไม่มีข้อมูลการจองในขณะนี้</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
     </div>
 
+
     <script>
-        const labels7 = {{ chart_labels|safe }};
-        const data7 = {{ chart_data|safe }};
-        const labelsMonth = {{ month_labels|safe }};
-        const dataMonth = {{ month_data|safe }};
+        function openModal() {
+            document.getElementById("walkinModal").style.display = "block";
+        }
+        function closeModal() {
+            document.getElementById("walkinModal").style.display = "none";
+        }
+        // ปิดเมื่อคลิกนอก Modal
+        window.onclick = function (event) {
+            let modal = document.getElementById("walkinModal");
+            if (event.target == modal) modal.style.display = "none";
+        }
+    </script>
+
+    <script>
+        const labels7 = {{ chart_labels| safe }};
+        const data7 = {{ chart_data| safe }};
+        const labelsMonth = {{ month_labels| safe }};
+        const dataMonth = {{ month_data| safe }};
 
         const ctx = document.getElementById('incomeChart').getContext('2d');
         const chartBtns = document.querySelectorAll('.chart-btn');
@@ -140,7 +262,6 @@
         gradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
         gradient.addColorStop(1, 'rgba(34, 197, 94, 0)');
 
-        //ตั้งค่าChart.js
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -169,7 +290,7 @@
                         titleFont: { family: 'Prompt' },
                         bodyFont: { family: 'Prompt' },
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 return ' รายได้: ' + context.parsed.y.toLocaleString() + ' ฿';
                             }
                         }
@@ -178,11 +299,8 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            font: { family: 'Prompt' },
-                            callback: function(value) { return value.toLocaleString() + ' ฿'; }
-                        },
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        ticks: { font: { family: 'Prompt' }, callback: function (value) { return value.toLocaleString() + ' ฿'; } },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
                     },
                     x: {
                         ticks: { font: { family: 'Prompt' } },
@@ -192,23 +310,17 @@
             }
         });
 
-        //ฟังก์ชันจัดการปุ่มและกราฟ
         function updateUI(clickedBtn, labels, data) {
             chartBtns.forEach(btn => btn.classList.remove('active'));
             clickedBtn.classList.add('active');
-            
             chart.data.labels = labels;
             chart.data.datasets[0].data = data;
             chart.update('active');
         }
 
-        function show7days() {
-            updateUI(event.target, labels7, data7);
-        }
-
-        function showMonth() {
-            updateUI(event.target, labelsMonth, dataMonth);
-        }
+        function show7days() { updateUI(event.target, labels7, data7); }
+        function showMonth() { updateUI(event.target, labelsMonth, dataMonth); }
     </script>
 </body>
+
 </html>

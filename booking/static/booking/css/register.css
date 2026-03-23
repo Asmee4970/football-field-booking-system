@@ -7,7 +7,6 @@
 body {
     margin: 0;
     height: 100vh;
-    /* ใช้พื้นหลัง Gradient เดียวกัน */
     background: linear-gradient(135deg, #0f172a, #1e293b);
     display: flex;
     justify-content: center;
@@ -16,7 +15,6 @@ body {
     overflow: hidden;
 }
 
-/* ===== Navbar (คุมโทนเดียวกับหน้าอื่น) ===== */
 .navbar {
     position: fixed;
     top: 0;
@@ -50,12 +48,10 @@ body {
     text-transform: uppercase;
 }
 
-/* ===== Register Box (อัปเกรดเป็นพรีเมียมสไตล์เดียวกับ Login) ===== */
 .register-box {
     background: #1e293b; 
-    /* สีเดียวกับ Card ใน Dashboard */
     color: #fff;
-    width: 400px; /* กว้างขึ้นเล็กน้อยสำหรับฟอร์มสมัครสมาชิก */
+    width: 400px; 
     padding: 40px;
     border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -64,7 +60,6 @@ body {
     position: relative;
 }
 
-/* เพิ่มแสงเรืองสีเขียวจางๆ รอบกล่อง Register */
 .register-box::after {
     content: "";
     position: absolute;
@@ -107,21 +102,19 @@ body {
     padding: 12px 16px;
     border-radius: 12px;
     background: #0f172a; 
-    /* พื้นหลังมืดสไตล์ Modern */
     border: 1px solid #334155;
     color: #fff;
     font-size: 14px;
     outline: none;
 }
 
-/* เอฟเฟกต์ตอนคลิกที่ช่องกรอก */
 .form-group input:focus {
     border-color: #22c55e;
     box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
     background: #161e2e;
 }
 
-/* ===== Button (Dashboard Style) ===== */
+/*  Button (Dashboard Style)  */
 .btn-register {
     width: 100%;
     padding: 14px;
@@ -176,7 +169,6 @@ body {
 
 
 
-/* เพิ่มต่อท้ายใน register.css */
 
 /* จัดการตำแหน่ง wrapper ของรหัสผ่าน */
 .password-wrapper {
@@ -184,7 +176,6 @@ body {
     width: 100%;
 }
 
-/* ปรับ Padding ขวาของ input เพื่อไม่ให้ตัวหนังสือทับไอคอน */
 .password-wrapper input {
     padding-right: 45px !important;
 }

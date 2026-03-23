@@ -5,6 +5,11 @@ from datetime import timedelta
 
 
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
+
 # Field
 FIELD_TYPE = (
     ('football', 'ฟุตบอล'),
@@ -19,14 +24,15 @@ class Field(models.Model):
     image = models.ImageField(upload_to='fields/', null=True, blank=True)
     open_time = models.TimeField()
     close_time = models.TimeField()
+    
+    # 💡 [แนะนำเพิ่มเติม] เพิ่มฟิลด์นี้เข้าไป เพื่อใช้เปิด/ปิดสนาม แทนการกดลบทิ้งจริงๆ (Soft Delete)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
 
-
 # Booking
 class Booking(models.Model):
-
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -34,32 +40,38 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    field = models.ForeignKey(Field, on_delete=models.CASCADE)
+    # 🛑 แก้ไขตรงนี้: เปลี่ยนจาก CASCADE เป็น SET_NULL
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)
 
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-
     hours = models.IntegerField()
     total_price = models.IntegerField()
-
-    status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
-
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.field.name}"
+        # 🛑 ป้องกัน Error กรณีที่ User หรือ Field ถูกลบไปแล้ว (กลายเป็น Null)
+        username = self.user.username if self.user else "ผู้ใช้ที่ถูกลบ"
+        field_name = self.field.name if self.field else "สนามที่ถูกลบ"
+        return f"{username} - {field_name}"
 
     class Meta:
         ordering = ['-created_at']
 
+# Payment
+class Payment(models.Model):
+    # 🛑 แก้ไขตรงนี้ด้วย: เพื่อไม่ให้ประวัติการจ่ายเงินหาย ถ้าบิลถูกลบ
+    booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True)
+    slip = models.ImageField(upload_to="slips/", null=True, blank=True)
+    status = models.CharField(max_length=20, default="pending")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Payment for {self.booking if self.booking else 'Deleted Booking'}"
 
 # Profile
 class Profile(models.Model):
@@ -80,12 +92,11 @@ class EmailOTP(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=5)
 
 
-# Payment
-class Payment(models.Model):
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
-    slip = models.ImageField(upload_to="slips/", null=True, blank=True)
-    status = models.CharField(max_length=20, default="pending")
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Payment for {self.booking}"
+# ตัวอย่างใน views.py
+def booking_management(request):
+    fields = Field.objects.all() # ต้องดึงข้อมูลสนามส่งไปด้วย
+    bookings = Booking.objects.all()
+    return render(request, 'your_template.html', {
+        'fields': fields, 
+        'bookings': bookings
+    })

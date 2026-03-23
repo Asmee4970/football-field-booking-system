@@ -12,7 +12,7 @@ body {
     padding-bottom: 50px;
 }
 
-/* ===== Navbar (Glassmorphism) ===== */
+/*  Navbar (Glassmorphism)  */
 * {
     box-sizing: border-box;
     font-family: 'Prompt', sans-serif;
@@ -27,7 +27,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ===== Navbar (Modern Glass Style) ===== */
 .navbar {
     position: sticky;
     top: 0;
@@ -221,8 +220,8 @@ body {
 .profile-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;         /* ระยะห่างระหว่างปุ่ม */
-    width: 100%;       /* บังคับให้กลุ่มปุ่มกว้างเท่ากรอบการ์ด */
+    gap: 12px;
+    width: 100%; 
     margin-top: 30px;
 }
 
@@ -279,7 +278,7 @@ body {
 
 .form-input {
     width: 100%;
-    background: rgba(15, 23, 42, 0.6); /* เข้มขึ้นเล็กน้อยเพื่อให้พิมพ์ง่าย */
+    background: rgba(15, 23, 42, 0.6); 
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 14px 20px;
     border-radius: 15px;
@@ -289,14 +288,12 @@ body {
     outline: none;
 }
 
-/* เอฟเฟกต์ตอนคลิกที่ช่องกรอก */
 .form-input:focus {
     border-color: #22c55e;
     background: rgba(15, 23, 42, 0.8);
     box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
 }
 
-/* ปรับแต่งปุ่ม Submit ให้เป็นปุ่ม */
 .edit-form button.btn-primary {
     border: none;
     cursor: pointer;
@@ -304,12 +301,10 @@ body {
     margin-bottom: 5px;
 }
 
-/* จัดระยะห่างของ label ในหน้าแก้ไข */
 .edit-form .info-group {
     margin-bottom: 5px;
 }
 
-/* Placeholder color */
 .form-input::placeholder {
     color: #475569;
 }
@@ -331,7 +326,8 @@ body {
 }
 
 
-/* ===== Success Page Specific Style ===== */
+
+
 
 .success-card {
     padding-top: 60px;
@@ -366,7 +362,6 @@ body {
     margin-bottom: 10px;
 }
 
-/* Animation หน้าเด้งขึ้น */
 @keyframes slideUp {
     from {
         opacity: 0;
@@ -378,7 +373,6 @@ body {
     }
 }
 
-/* ปรับแต่งปุ่มให้ดูเด่นขึ้นในหน้า Success */
 .success-card .btn-primary {
     display: flex;
     align-items: center;
@@ -398,13 +392,11 @@ body {
 
 
 
-/* จัดการ Container ของ Password ให้ใส่ปุ่มเข้าไปได้ */
 .password-field-container {
     position: relative;
     width: 100%;
 }
 
-/* ปรับ Padding ด้านขวาของ Input เพื่อไม่ให้ตัวหนังสือทับดวงตา */
 .password-field-container .form-input {
     padding-right: 50px;
 }
@@ -433,7 +425,6 @@ body {
     transform: translateY(-50%) scale(1.1);
 }
 
-/* มั่นใจว่า alert คุมโทน */
 .alert {
     font-size: 14px;
     padding: 15px;

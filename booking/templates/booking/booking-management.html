@@ -5,13 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Booking Management | Admin</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'booking/css/booking-management.css' %}">
 </head>
 
 <body>
-
     <nav class="navbar">
         <div class="logo">
             <span class="logo-main">FOOTBALL</span>
@@ -19,123 +17,174 @@
         </div>
         <ul class="nav-menu">
             <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-
             <li><a href="{% url 'field_management' %}">สนาม</a></li>
-
             <li><a href="{% url 'booking_management' %}" class="active">การจอง</a></li>
             <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
         </ul>
     </nav>
 
-
     <div class="container">
+        <div class="header-section">
+            <h1>จัดการการจองสนาม</h1>
+            <button class="btn approve" onclick="openAddBooking()">+ เพิ่มการจอง (Walk-in)</button>
+        </div>
 
-        <h1>จัดการการจองสนาม</h1>
+        <div class="filter-card">
+            <form method="GET" class="filter-form">
+                <div class="search-group">
+                    <input type="text" name="q" placeholder="ค้นหาชื่อลูกค้า, เบอร์โทร, หรือสนาม..."
+                        value="{{ search_query }}">
+                </div>
+                <div class="select-group">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="">ทุกสถานะ</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>รอตรวจสอบ</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>อนุมัติแล้ว
+                        </option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>ปฏิเสธ</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>ยกเลิกแล้ว
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-search">ค้นหา</button>
+                {% if search_query or status_filter %}
+                <a href="{% url 'booking_management' %}" class="btn-reset">ล้างค่า</a>
+                {% endif %}
+            </form>
+        </div>
 
         <div class="table-box">
-
             <table class="booking-table">
-
                 <thead>
                     <tr>
                         <th>ผู้จอง</th>
                         <th>สนาม</th>
-                        <th>วันที่</th>
-                        <th>เวลา</th>
-                        <th>ชม.</th>
+                        <th>วันที่ / เวลา</th>
+                        <th>ยอดเงิน</th>
                         <th>สลิป</th>
                         <th>สถานะ</th>
                         <th>จัดการ</th>
                     </tr>
                 </thead>
-
                 <tbody>
-
                     {% for booking in bookings %}
-
                     <tr>
                         <td>
-                            {{ booking.user.username}}<br>
-                            <small style="color: #a0aec0;">{{ booking.user.profile.phone }}</small>
-                        </td>
-
-                        <td>{{ booking.field.name }}</td>
-                        <td>{{ booking.date }}</td>
-                        <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
-                        <td>{{ booking.hours }}</td>
-
-                        <td>
-
-                            {% if booking.slip %}
-                            <a href="{{ booking.slip.url }}" target="_blank" class="btn view">
-                                ดูสลิป
-                            </a>
-                            {% else %}
-                            <span class="no-slip">ไม่มี</span>
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            <span class="status {{ booking.status }}">
-
-                                {% if booking.status == "pending" %}
-                                รอตรวจสอบ
-
-                                {% elif booking.status == "approved" %}
-                                อนุมัติแล้ว
-
-                                {% elif booking.status == "cancelled" %}
-                                ยกเลิกแล้ว
-
-                                {% else %}
-                                ปฏิเสธ
-
+                            <div class="user-info">
+                                <span class="username">{{ booking.user.username }}</span>
+                                {% if not booking.slip %}
+                                <span class="badge-walkin">WALK-IN</span>
                                 {% endif %}
-
-                            </span>
-
+                                <small class="phone">{{ booking.user.profile.phone }}</small>
+                            </div>
                         </td>
-
+                        <td><span class="field-name">{{ booking.field.name }}</span></td>
                         <td>
-
-                            {% if booking.status == "pending" %}
-
-                            <a href="{% url 'approve_booking' booking.id %}" class="btn approve">
-                                อนุมัติ
-                            </a>
-
-                            <a href="{% url 'reject_booking' booking.id %}" class="btn reject">
-                                ปฏิเสธ
-                            </a>
-
-                            {% elif booking.status == "approved" %}
-
-                            <a href="{% url 'cancel_booking' booking.id %}" class="btn cancel">
-                                ยกเลิก
-                            </a>
-
-                            {% else %}
-
-                            -
-
-                            {% endif %}
-
+                            <div class="time-info">
+                                <span>{{ booking.date|date:"d M Y" }}</span>
+                                <small>{{ booking.start_time|time:"H:i" }} - {{ booking.end_time|time:"H:i" }} ({{ booking.hours }} ชม.)</small>
+                            </div>
                         </td>
-
+                        <td><span class="price-tag">{{ booking.total_price }} ฿</span></td>
+                        <td>
+                            {% if booking.slip %}
+                            <a href="{{ booking.slip.url }}" target="_blank" class="btn-view-slip">ดูสลิป</a>
+                            {% else %}
+                            <span class="no-slip">เงินสด</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status {{ booking.status }}">
+                                {% if booking.status == "pending" %}รอตรวจสอบ
+                                {% elif booking.status == "approved" %}อนุมัติแล้ว
+                                {% elif booking.status == "cancelled" %}ยกเลิกแล้ว
+                                {% else %}ปฏิเสธ{% endif %}
+                            </span>
+                        </td>
+                        <td class="action-cell">
+                            {% if booking.status == "pending" %}
+                            <a href="{% url 'approve_booking' booking.id %}" class="btn approve">อนุมัติ</a>
+                            <a href="{% url 'reject_booking' booking.id %}" class="btn reject">ปฏิเสธ</a>
+                            {% elif booking.status == "approved" %}
+                            <a href="{% url 'cancel_booking' booking.id %}" class="btn cancel"
+                                onclick="return confirm('ยืนยันการยกเลิก?')">ยกเลิก</a>
+                            {% else %}-{% endif %}
+                        </td>
                     </tr>
-
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">ไม่พบข้อมูลการจอง
+                        </td>
+                    </tr>
                     {% endfor %}
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
 
+    <div class="modal" id="bookingModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>เพิ่มการจอง (Walk-in)</h2>
+                <button class="close-x" onclick="closeBookingModal()">&times;</button>
+            </div>
+
+            <form method="POST" action="{% url 'add_walkin_booking' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>ชื่อลูกค้า (Username)</label>
+                    <input type="text" name="username" required placeholder="ระบุชื่อผู้ใช้งาน หรือ ชื่อลูกค้า">
+                </div>
+
+                <div class="form-group">
+                    <label>เลือกสนาม</label>
+                    <select name="field_id" required>
+                        <option value="">-- เลือกสนาม --</option>
+                        {% for field in fields %}
+                        <option value="{{ field.id }}">{{ field.name }} ({{ field.price }} ฿/ชม.)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>วันที่จอง</label>
+                    <input type="date" name="date" required value="{% now 'Y-m-d' %}">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>เวลาเริ่ม</label>
+                        <input type="time" name="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label>เวลาสิ้นสุด</label>
+                        <input type="time" name="end_time" required>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel" onclick="closeBookingModal()">ยกเลิก</button>
+                    <button type="submit" class="btn approve">ยืนยันการจอง</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddBooking() {
+            const modal = document.getElementById("bookingModal");
+            modal.classList.add("active");
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById("bookingModal");
+            modal.classList.remove("active");
+        }
+        window.onclick = function (event) {
+            const modal = document.getElementById("bookingModal");
+            if (event.target == modal) closeBookingModal();
+        }
+    </script>
 </body>
 
 </html>
