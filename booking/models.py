@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
-
-
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -52,6 +49,16 @@ class Booking(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # เพิ่มฟิลด์เหล่านี้
+    water_packs = models.IntegerField(default=0)
+    balls = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        # คำนวณอัตโนมัติ: 1 ชม. = น้ำ 2, บอล 2
+        if not self.pk: # ทำเฉพาะตอนสร้าง Booking ใหม่
+            self.water_packs = self.hours * 2
+            self.balls = self.hours * 2
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # 🛑 ป้องกัน Error กรณีที่ User หรือ Field ถูกลบไปแล้ว (กลายเป็น Null)

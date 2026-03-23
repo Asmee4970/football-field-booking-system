@@ -124,8 +124,7 @@
                 <h2 style="color: #fff; display: flex; align-items: center; gap: 10px;">
                     <span class="live-dot-header"></span> สถานะสนาม (Real-Time)
                 </h2>
-                <span class="badge" style="background: #0f172a; border: 1px solid #334155;">อัปเดตล่าสุดเวลา: {{
-                    now|time:"H:i" }} น.</span>
+                <span class="badge" style="background: #0f172a; border: 1px solid #334155;">อัปเดตล่าสุดเวลา: {{ now|time:"H:i" }} น.</span>
             </div>
             <div class="live-grid">
                 {% for item in live_status %}
@@ -167,17 +166,21 @@
                         {% for b in today_schedules %}
                         <tr>
                             <td class="time-col">{{ b.start_time|time:"H:i" }} - {{ b.end_time|time:"H:i" }}</td>
-                            <td><span class="highlight-field">{{ b.field.name }}</span></td>
-                            <td class="user-name">{{ b.user.username }}</td>
+                            <td><span class="highlight-field">{{ b.field.name|default:"สนามทั่วไป" }}</span></td>
+                            <td class="user-name">{{ b.user.username|default:"ผู้ใช้ทั่วไป" }}</td>
                             <td>
-                                💧 เตรียมน้ำดื่ม <strong style="color: #38bdf8; font-size: 16px;">{{ b.water_packs
-                                    }}</strong> แพ็ค
+                                <div>
+                                    💧 น้ำดื่ม <strong style="color: #38bdf8; font-size: 16px;">{{ b.water_packs
+                                        }}</strong> แพ็ค
+                                </div>
+                                <div>
+                                    ⚽ ลูกบอล <strong style="color: #fbbf24; font-size: 16px;">{{ b.balls }}</strong> ลูก
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="empty-msg" style="color:#22c55e; text-align:center;">✅
-                                วันนี้ไม่มีคิวแล้ว พนักงานพักผ่อนได้</td>
+                            <td colspan="4" style="text-align: center;">วันนี้ยังไม่มีการจอง</td>
                         </tr>
                         {% endfor %}
                     </tbody>
