@@ -655,13 +655,52 @@ def cancel_booking(request, booking_id):
 
     return redirect("booking_management")
 
+
 @login_required
 def approve_booking(request, booking_id):
     if not request.user.is_superuser:
         return redirect("home")
+    
     booking = get_object_or_404(Booking, id=booking_id)
     booking.status = "approved"
     booking.save()
+
+    # --- 🟢 ส่วนที่เพิ่มเข้ามา: ส่งอีเมลแจ้งเตือนลูกค้า ---
+    if booking.user and booking.user.email:
+        subject = f'✅ อนุมัติการจองสนาม: {booking.field.name}'
+        
+        # จัดรูปแบบวันที่และเวลาให้สวยงาม
+        date_str = booking.date.strftime("%d/%m/%Y")
+        start_str = booking.start_time.strftime("%H:%M")
+        end_str = booking.end_time.strftime("%H:%M")
+
+        message = f'''
+สวัสดีคุณ {booking.user.username},
+
+การจองสนามของคุณได้รับการ "อนุมัติ" เรียบร้อยแล้ว! 🎉
+
+รายละเอียดการจอง:
+⚽ สนาม: {booking.field.name}
+📅 วันที่: {date_str}
+⏰ เวลา: {start_str} - {end_str}
+
+ขอบคุณที่ใช้บริการครับ
+ทีมงาน Football Field Booking
+        '''
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL, # ดึงอีเมลผู้ส่งจาก settings.py
+                [booking.user.email],        # ส่งไปหาอีเมลของลูกค้า
+                fail_silently=False,         # ถ้าส่งไม่ผ่านให้แจ้ง error (ตอนขึ้นโปรดักชั่นอาจปรับเป็น True)
+            )
+        except Exception as e:
+            # ป้องกันเว็บค้าง/พัง กรณีระบบอีเมลมีปัญหา
+            print(f"เกิดข้อผิดพลาดในการส่งอีเมล: {e}")
+    # -----------------------------------------------
+
     return redirect("booking_management")
 
 @login_required
