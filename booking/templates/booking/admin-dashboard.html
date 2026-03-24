@@ -89,7 +89,7 @@
                         <label>เลือกสนาม</label>
                         <select name="field_id" required>
                             <option value="">-- เลือกสนาม --</option>
-                            {% for field in fields %}
+                            {% for field in all_fields %}
                             <option value="{{ field.id }}">{{ field.name }} ({{ field.price }} ฿/ชม.)</option>
                             {% endfor %}
                         </select>
@@ -238,17 +238,17 @@
 
 
     <script>
-        function openModal() {
-            document.getElementById("walkinModal").style.display = "block";
+        function openModal() { // สำหรับปุ่ม สร้างการจองใหม่
+            const modal = document.getElementById("walkinModal");
+            modal.style.display = "block";
         }
-        function closeModal() {
-            document.getElementById("walkinModal").style.display = "none";
+
+        function closeModal() { // สำหรับปุ่ม X และปุ่มยกเลิก
+            const modal = document.getElementById("walkinModal");
+            modal.style.display = "none";
         }
-        // ปิดเมื่อคลิกนอก Modal
-        window.onclick = function (event) {
-            let modal = document.getElementById("walkinModal");
-            if (event.target == modal) modal.style.display = "none";
-        }
+
+        // ปรับให้ปุ่มยกเลิกใน HTML เรียก closeModal() ด้วย
     </script>
 
     <script>
