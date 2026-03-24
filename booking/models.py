@@ -22,7 +22,6 @@ class Field(models.Model):
     open_time = models.TimeField()
     close_time = models.TimeField()
     
-    # 💡 [แนะนำเพิ่มเติม] เพิ่มฟิลด์นี้เข้าไป เพื่อใช้เปิด/ปิดสนาม แทนการกดลบทิ้งจริงๆ (Soft Delete)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -37,7 +36,6 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     )
 
-    # 🛑 แก้ไขตรงนี้: เปลี่ยนจาก CASCADE เป็น SET_NULL
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     field = models.ForeignKey(Field, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -48,23 +46,20 @@ class Booking(models.Model):
     total_price = models.IntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)
+    is_walkin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     hours = models.IntegerField()
     water_packs = models.IntegerField(default=0)
     balls = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # ตรวจสอบว่าเป็นการสร้างข้อมูลใหม่ (ยังไม่มี ID)
         if not self.pk:
-            # น้ำดื่ม: จำนวนชั่วโมง x 2
             self.water_packs = self.hours * 2
-            # ลูกบอล: ให้ 2 ลูกเสมอ ไม่ว่าจะเตะกี่ชั่วโมง
             self.balls = 2
             
         super().save(*args, **kwargs)
 
     def __str__(self):
-        # 🛑 ป้องกัน Error กรณีที่ User หรือ Field ถูกลบไปแล้ว (กลายเป็น Null)
         username = self.user.username if self.user else "ผู้ใช้ที่ถูกลบ"
         field_name = self.field.name if self.field else "สนามที่ถูกลบ"
         return f"{username} - {field_name}"
@@ -74,7 +69,6 @@ class Booking(models.Model):
 
 # Payment
 class Payment(models.Model):
-    # 🛑 แก้ไขตรงนี้ด้วย: เพื่อไม่ให้ประวัติการจ่ายเงินหาย ถ้าบิลถูกลบ
     booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True)
     slip = models.ImageField(upload_to="slips/", null=True, blank=True)
     status = models.CharField(max_length=20, default="pending")
@@ -102,9 +96,9 @@ class EmailOTP(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=5)
 
 
-# ตัวอย่างใน views.py
+# views.py
 def booking_management(request):
-    fields = Field.objects.all() # ต้องดึงข้อมูลสนามส่งไปด้วย
+    fields = Field.objects.all()
     bookings = Booking.objects.all()
     return render(request, 'your_template.html', {
         'fields': fields, 

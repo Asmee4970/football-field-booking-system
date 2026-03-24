@@ -72,7 +72,7 @@
                         <td>
                             <div class="user-info">
                                 <span class="username">{{ booking.user.username }}</span>
-                                {% if not booking.slip %}
+                                {% if booking.is_walkin %}
                                 <span class="badge-walkin">WALK-IN</span>
                                 {% endif %}
                                 <small class="phone">{{ booking.user.profile.phone }}</small>
@@ -87,10 +87,12 @@
                         </td>
                         <td><span class="price-tag">{{ booking.total_price }} ฿</span></td>
                         <td>
-                            {% if booking.slip %}
+                            {% if booking.is_walkin %}
+                            <span class="no-slip" style="color: #10b981; font-weight: 500;">เงินสด</span>
+                            {% elif booking.slip %}
                             <a href="{{ booking.slip.url }}" target="_blank" class="btn-view-slip">ดูสลิป</a>
                             {% else %}
-                            <span class="no-slip">เงินสด</span>
+                            <span class="no-slip" style="color: #1732dd; font-weight: 500;">ไม่มีสลิป</span>
                             {% endif %}
                         </td>
                         <td>

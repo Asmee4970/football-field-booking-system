@@ -74,7 +74,6 @@
     </div>
 
     <script>
-        // 1. เตรียมข้อมูล
         const bookedData = [
             {% for b in bookings %}
         {
@@ -112,7 +111,6 @@
         let selectedDateStr = null;
         let selectedSlots = [];
 
-        // 2. ฟังก์ชันวาดตาราง
         function renderTable(startDate) {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
@@ -148,10 +146,8 @@
                     let hour = parseInt(time.split(":")[0]);
                     const now = new Date();
 
-                    // สร้างวันที่ปัจจุบันตาม Timezone ของไทย (Local Time)
                     const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 
-                    // ตรวจสอบสถานะการจอง
                     let bookingStatus = null;
                     bookedData.forEach(b => {
                         if (b.date === dateStr) {
@@ -166,7 +162,6 @@
                         }
                     });
 
-                    // แก้ไขเงื่อนไข isPast โดยเทียบกับ todayStr ที่เป็นเวลา Local 
                     let isPast = (day < todayLimit) || (dateStr === todayStr && hour <= now.getHours());
 
                     if (isPast || bookingStatus === 'booked') {
@@ -243,7 +238,6 @@
             summaryBox.style.display = "flex";
         }
 
-        // 3. Event Listeners
         document.getElementById("nextWeek").onclick = () => { currentStartDate.setDate(currentStartDate.getDate() + 7); renderTable(currentStartDate); };
         document.getElementById("prevWeek").onclick = () => { currentStartDate.setDate(currentStartDate.getDate() - 7); renderTable(currentStartDate); };
         document.getElementById("cancelBtn").onclick = () => {
@@ -260,7 +254,6 @@
             window.location.href = `${bookingUrl}?field=${fieldId}&date=${selectedDateStr}&start=${start}&end=${end}&hours=${selectedSlots.length}`;
         };
 
-        // เริ่มต้น
         renderTable(currentStartDate);
     </script>
 </body>

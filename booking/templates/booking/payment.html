@@ -19,7 +19,7 @@
         </div>
 
         <ul class="nav-menu">
-            <li><a href="{% url 'home' %}"  class="active">สนาม</a></li>
+            <li><a href="{% url 'home' %}" class="active">สนาม</a></li>
             <li><a href="{% url 'my_booking' %}">การจองของฉัน</a></li>
             <li><a href="{% url 'profile' %}">โปรไฟล์</a></li>
             <li>
@@ -103,6 +103,32 @@
             </form>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% if messages %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            {% for message in messages %}
+            Toast.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}",
+                title: "{{ message }}"
+            });
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
 
 </body>
 

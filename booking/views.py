@@ -17,8 +17,6 @@ from django.db.models import Sum, Count
 from datetime import timedelta, date
 from django.db.models import Q
 
-# PUBLIC PAGES
-
 def welcome(request):
     return render(request, 'booking/welcome.html')
 
@@ -184,7 +182,7 @@ def field_detail(request, field_id):
 @login_required
 def booking_page(request):
     field_id = request.GET.get("field")
-    date_str = request.GET.get("date") # เปลี่ยนชื่อตัวแปรนิดหน่อยเพื่อไม่ให้งง
+    date_str = request.GET.get("date")
     start = request.GET.get("start")
     end = request.GET.get("end")
     hours = request.GET.get("hours")
@@ -194,7 +192,6 @@ def booking_page(request):
 
     try:
         hours = int(hours)
-        # แปลง string ให้เป็นออบเจกต์ Date และ Time เพื่อเอามาเปรียบเทียบ
         booking_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         booking_start = datetime.strptime(start, "%H:%M").time()
     except ValueError:
@@ -202,13 +199,11 @@ def booking_page(request):
 
     field = get_object_or_404(Field, id=field_id)
     
-    # --- 🛑 1. ดักจับการพิมพ์ URL จองเวลาในอดีต ---
     now = datetime.now()
     if booking_date < now.date() or (booking_date == now.date() and booking_start < now.time()):
         messages.error(request, "ไม่สามารถจองเวลาในอดีตได้")
         return redirect("field_detail", field.id)
 
-    # --- 🛑 2. ดักจับการจองทับเวลาคนอื่น (ที่คุณมีอยู่แล้ว) ---
     exist = Booking.objects.filter(
         field=field,
         date=booking_date,
@@ -291,7 +286,7 @@ def booking_create(request, field_id):
         status="pending"
     )
 
-    messages.success(request, "จองสำเร็จ กรุณารอแอดมินตรวจสอบสลิป")
+    messages.success(request, "จองสำเร็จ กรุณาชำระเงินและอัปโหลดสลิป")
     return redirect("payment", booking_id=booking.id)
 
 def my_booking(request):
@@ -318,12 +313,19 @@ def payment(request, booking_id):
 @login_required
 def upload_slip(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
     if request.method == "POST":
         slip = request.FILES.get("slip")
         if slip:
             booking.slip = slip
             booking.status = "pending"
             booking.save()
+            
+            messages.success(request, "ส่งหลักฐานสำเร็จ! กรุณารอแอดมินตรวจสอบ")
+        else:
+            messages.error(request, "กรุณาอัปโหลดสลิปการโอนเงิน")
+            return redirect('payment', booking_id=booking.id)
+            
     return redirect("my_booking")
 
 # PROFILE MANAGEMENT
@@ -382,7 +384,6 @@ def admin_dashboard(request):
     if not request.user.is_superuser:
         return redirect("home")
 
-    # --- ส่วนเดิมของคุณ ---
     now = timezone.localtime(timezone.now())
     today = now.date()
     current_time = now.time()
@@ -396,7 +397,7 @@ def admin_dashboard(request):
     top_field_query = Booking.objects.values('field__name').annotate(count=Count('id')).order_by('-count').first()
     top_field_name = top_field_query['field__name'] if top_field_query else "ไม่มีข้อมูล"
 
-    all_fields = Field.objects.all() # ดึงสนามทั้งหมดมาใช้ใน Modal และ Live Status
+    all_fields = Field.objects.all()
     
     live_status = []
     for f in all_fields:
@@ -415,7 +416,6 @@ def admin_dashboard(request):
         end_dt = datetime.combine(dummy_date, b.end_time)
         b.water_packs = int((end_dt - start_dt).total_seconds() / 3600)
 
-    # กราฟ (เหมือนเดิม)
     days_7, income_7 = [], []
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
@@ -430,9 +430,8 @@ def admin_dashboard(request):
         days_30.append(day.strftime("%d/%m"))
         income_30.append(float(total))
 
-    # --- ส่วนที่เพิ่ม/แก้ไข ---
     context = {
-        "all_fields": all_fields, # เพิ่มเพื่อให้เลือกสนามใน Modal ได้
+        "all_fields": all_fields,
         "now": now,
         "today_bookings": today_bookings,
         "today_income": today_income,
@@ -457,21 +456,18 @@ def create_walkin_booking(request):
         date = request.POST.get('date')
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
-        customer_name = request.POST.get('customer_name') # ใช้ระบุชื่อกรณี Walk-in
+        customer_name = request.POST.get('customer_name')
         
         field = Field.objects.get(id=field_id)
         
-        # คำนวณราคา (ตัวอย่าง: ชั่วโมงละ 500 หรือตามราคาที่ตั้งไว้ใน Model Field)
-        # Booking.objects.create(...)
-        # ตรงนี้ให้เขียน Logic การบันทึกให้ตรงกับ Model Booking ของคุณ
         Booking.objects.create(
-            user=request.user, # หรือผูกกับ User กลางสำหรับ Walk-in
+            user=request.user,
             field=field,
             date=date,
             start_time=start_time,
             end_time=end_time,
-            status='approved', # Walk-in อนุมัติทันที
-            total_price=0, # คำนวณตามจริง
+            status='approved',
+            total_price=0,
         )
     return redirect('admin_dashboard')
 
@@ -525,7 +521,6 @@ def booking_management(request):
 
     bookings = Booking.objects.select_related("user", "field").order_by("-created_at")
     
-    # ดึงรายชื่อสนามทั้งหมดไปใช้ใน Modal
     fields = Field.objects.all()
 
     if search_query:
@@ -539,7 +534,7 @@ def booking_management(request):
 
     context = {
         "bookings": bookings,
-        "fields": fields, # ส่งไปให้ Modal เลือกสนาม
+        "fields": fields,
         "search_query": search_query,
         "status_filter": status_filter,
     }
@@ -555,11 +550,10 @@ def add_walkin_booking(request):
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
 
-        # หา User หรือสร้างใหม่ถ้าไม่มี (สำหรับ Walk-in)
         user, created = User.objects.get_or_create(username=username)
         field = get_object_or_404(Field, id=field_id)
 
-        # คำนวณชั่วโมง (Logic คร่าวๆ)
+        from datetime import datetime
         fmt = '%H:%M'
         tdelta = datetime.strptime(end_time, fmt) - datetime.strptime(start_time, fmt)
         hours = tdelta.seconds / 3600
@@ -572,7 +566,8 @@ def add_walkin_booking(request):
             end_time=end_time,
             hours=hours,
             total_price=hours * field.price,
-            status='approved', # Walk-in อนุมัติทันที
+            status='approved',
+            is_walkin=True,
         )
     return redirect('booking_management')
 

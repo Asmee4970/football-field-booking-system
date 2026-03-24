@@ -24,6 +24,5 @@ urlpatterns = [
     path('', include('booking.urls')),
 ]
 
-# สำหรับแสดงไฟล์ media ตอนพัฒนา
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

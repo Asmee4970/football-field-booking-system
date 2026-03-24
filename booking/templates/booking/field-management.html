@@ -133,12 +133,10 @@
             const modal = document.getElementById("fieldModal");
             document.getElementById("modalTitle").innerText = "เพิ่มสนามใหม่";
 
-            // ล้างข้อมูลเก่า
             document.getElementById("field_id").value = "";
             document.getElementById("name").value = "";
             document.getElementById("price").value = "";
 
-            // แสดง Modal
             modal.classList.add("active");
         }
 
@@ -153,7 +151,6 @@
             document.getElementById("open_time").value = open;
             document.getElementById("close_time").value = close;
 
-            // แสดง Modal
             modal.classList.add("active");
         }
 
@@ -162,7 +159,6 @@
             modal.classList.remove("active");
         }
 
-        // ปิด Modal เมื่อคลิกพื้นหลังด้านนอก
         window.onclick = function (event) {
             const modal = document.getElementById("fieldModal");
             if (event.target == modal) {
