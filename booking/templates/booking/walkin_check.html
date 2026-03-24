@@ -1,0 +1,244 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Walk-in Check | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'booking/css/booking-management.css' %}">
+    <style>
+        .timeline-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .timeline-slot {
+            min-width: 80px;
+            text-align: center;
+            padding: 10px 5px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .slot-booked {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            cursor: not-allowed;
+        }
+
+        .slot-available {
+            background: #dcfce7;
+            color: #10b981;
+            border: 1px solid #86efac;
+            cursor: pointer;
+        }
+
+        .slot-available:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-picker-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgb(155, 155, 175);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-picker-bar input {
+            padding: 8px 12px;
+            border: 1px solid #5c7ba0;
+            border-radius: 6px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .status-legend {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-main">FOOTBALL</span>
+            <span class="logo-sub">FIELD BOOKING · ADMIN</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'field_management' %}">สนาม</a></li>
+            <li><a href="{% url 'booking_management' %}">การจอง</a></li>
+            <li><a href="{% url 'logout' %}">ออกจากระบบ</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>เช็คคิวว่าง (Walk-in)</h1>
+            <a href="{% url 'booking_management' %}" class="btn cancel" style="text-decoration: none;">&larr;
+                กลับหน้าจัดการการจอง</a>
+        </div>
+
+        <div class="date-picker-bar">
+            <form method="GET" style="margin: 0;">
+                <label style="font-weight: 500;">เลือกวันที่:</label>
+                <input type="date" name="date" value="{{ selected_date }}" onchange="this.form.submit()">
+            </form>
+            <div class="status-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#dcfce7; border: 1px solid #86efac;"></div> ว่าง
+                    (กดเพื่อจอง)
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background:#fee2e2; border: 1px solid #fca5a5;"></div> มีคนจองแล้ว
+                </div>
+            </div>
+        </div>
+
+        <div id="fieldsContainer"
+            style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></div>
+    </div>
+
+    <div class="modal" id="bookingModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>เพิ่มการจอง (Walk-in)</h2>
+                <button class="close-x" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <form method="POST" action="{% url 'add_walkin_booking' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>ชื่อลูกค้า (Username)</label>
+                    <input type="text" name="username" required placeholder="ระบุชื่อผู้ใช้งาน หรือ ชื่อลูกค้า">
+                </div>
+                <div class="form-group">
+                    <label>เลือกสนาม</label>
+                    <select name="field_id" id="modalFieldId" required
+                        style="pointer-events: none; background: #f1f5f9;">
+                        <option value="">-- เลือกสนาม --</option>
+                        {% for field in fields %}
+                        <option value="{{ field.id }}">{{ field.name }} ({{ field.price }} ฿/ชม.)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>วันที่จอง</label>
+                    <input type="date" name="date" id="modalDate" required readonly style="background: #f1f5f9;">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>เวลาเริ่ม</label>
+                        <input type="time" name="start_time" id="modalStartTime" required readonly
+                            style="background: #f1f5f9;">
+                    </div>
+                    <div class="form-group">
+                        <label>เวลาสิ้นสุด</label>
+                        <input type="time" name="end_time" id="modalEndTime" required readonly
+                            style="background: #f1f5f9;">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel" onclick="closeBookingModal()">ยกเลิก</button>
+                    <button type="submit" class="btn approve">ยืนยันการจอง</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const dateStr = "{{ selected_date }}";
+        const bookings = [
+            {% for b in bookings %}
+        { field_id: "{{ b.field.id }}", start: "{{ b.start_time|time:'H:i' }}", end: "{{ b.end_time|time:'H:i' }}" },
+        {% endfor %}
+        ];
+        const fields = [
+            {% for f in fields %}
+        { id: "{{ f.id }}", name: "{{ f.name }}", open: parseInt("{{ f.open_time|time:'H' }}"), close: parseInt("{{ f.close_time|time:'H' }}") },
+        {% endfor %}
+        ];
+
+        const container = document.getElementById("fieldsContainer");
+
+        fields.forEach(field => {
+            let closeTime = field.close;
+            if (closeTime <= field.open) closeTime += 24;
+
+            let html = `<h4 style="color: #1e293b; margin-bottom: 10px;">⚽ ${field.name}</h4><div class="timeline-row">`;
+
+            for (let h = field.open; h < closeTime; h++) {
+                let currentH = h % 24;
+                let nextH = (h + 1) % 24;
+
+                let startStr = String(currentH).padStart(2, '0') + ':00';
+                let endStr = String(nextH).padStart(2, '0') + ':00';
+                let timeLabel = `${startStr}`;
+
+                let isBooked = bookings.some(b => {
+                    let bStartH = parseInt(b.start.split(":")[0]);
+                    let bEndH = parseInt(b.end.split(":")[0]);
+                    if (bEndH <= bStartH) bEndH += 24;
+                    let checkH = (currentH < field.open && h >= 24) ? currentH + 24 : currentH;
+                    let actBStart = (bStartH < field.open) ? bStartH + 24 : bStartH;
+                    let actBEnd = (bEndH < field.open) ? bEndH + 24 : bEndH;
+                    return b.field_id === field.id && checkH >= actBStart && checkH < actBEnd;
+                });
+
+                if (isBooked) {
+                    html += `<div class="timeline-slot slot-booked">${timeLabel}<br><small>ไม่ว่าง</small></div>`;
+                } else {
+                    html += `<div class="timeline-slot slot-available" 
+                             onclick="openAddBooking('${field.id}', '${dateStr}', '${startStr}', '${endStr}')">
+                             ${timeLabel}<br><small>ว่าง</small></div>`;
+                }
+            }
+            html += `</div>`;
+            container.innerHTML += html;
+        });
+
+        function openAddBooking(fieldId, date, startTime, endTime) {
+            document.getElementById("modalFieldId").value = fieldId;
+            document.getElementById("modalDate").value = date;
+            document.getElementById("modalStartTime").value = startTime;
+            document.getElementById("modalEndTime").value = endTime;
+
+            const modal = document.getElementById("bookingModal");
+            modal.classList.add("active");
+        }
+
+        function closeBookingModal() {
+            document.getElementById("bookingModal").classList.remove("active");
+        }
+    </script>
+</body>
+
+</html>

@@ -162,12 +162,19 @@
                         }
                     });
 
-                    let isPast = (day < todayLimit) || (dateStr === todayStr && hour <= now.getHours());
+                    let slotDate = new Date(day);
+
+                    if (hour < openTime) {
+                        slotDate.setDate(slotDate.getDate() + 1);
+                    }
+                    slotDate.setHours(hour, 0, 0, 0);
+
+                    let isPast = slotDate < now;
 
                     if (isPast || bookingStatus === 'booked') {
                         div.classList.add("booked");
                         div.innerText = "ไม่ว่าง";
-                    } else if (bookingStatus === 'pending') {   
+                    } else if (bookingStatus === 'pending') {
                         div.classList.add("pending");
                         div.innerText = "รอยืนยัน";
                     } else {

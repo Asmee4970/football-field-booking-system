@@ -199,8 +199,12 @@ def booking_page(request):
 
     field = get_object_or_404(Field, id=field_id)
     
-    now = datetime.now()
-    if booking_date < now.date() or (booking_date == now.date() and booking_start < now.time()):
+    booking_datetime = datetime.combine(booking_date, booking_start)
+    
+    if booking_start.hour < field.open_time.hour:
+        booking_datetime += timedelta(days=1)
+
+    if booking_datetime < datetime.now():
         messages.error(request, "ไม่สามารถจองเวลาในอดีตได้")
         return redirect("field_detail", field.id)
 
@@ -520,7 +524,6 @@ def booking_management(request):
     status_filter = request.GET.get('status', '')
 
     bookings = Booking.objects.select_related("user", "field").order_by("-created_at")
-    
     fields = Field.objects.all()
 
     if search_query:
@@ -553,9 +556,15 @@ def add_walkin_booking(request):
         user, created = User.objects.get_or_create(username=username)
         field = get_object_or_404(Field, id=field_id)
 
-        from datetime import datetime
         fmt = '%H:%M'
-        tdelta = datetime.strptime(end_time, fmt) - datetime.strptime(start_time, fmt)
+        # แก้บักเผื่อเวลาจองข้ามคืน (เช่น 23:00 - 01:00) 
+        start_dt = datetime.strptime(start_time, fmt)
+        end_dt = datetime.strptime(end_time, fmt)
+        
+        if end_dt <= start_dt:
+            end_dt += timedelta(days=1)
+            
+        tdelta = end_dt - start_dt
         hours = tdelta.seconds / 3600
 
         Booking.objects.create(
@@ -572,10 +581,78 @@ def add_walkin_booking(request):
     return redirect('booking_management')
 
 @login_required
+def admin_walkin_check(request):
+    if not request.user.is_superuser:
+        return redirect("home")
+        
+    # 1. รับค่าวันที่มาก่อน
+    date_str = request.GET.get("date")
+    
+    # 2. เช็คว่าถ้าเป็น None (ไม่มีตัวแปร) หรือ "" (ค่าว่าง) ให้ใช้วันนี้แทน
+    if not date_str:
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        
+    # 3. แปลงเป็นรูปแบบวันที่ตามปกติ
+    selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+    fields = Field.objects.all()
+    # ดึงการจองทั้งหมดในวันนั้นที่สถานะผ่านหรือรอยืนยัน
+    bookings = Booking.objects.filter(
+        date=selected_date, 
+        status__in=["pending", "approved"]
+    )
+
+    context = {
+        "selected_date": date_str,
+        "fields": fields,
+        "bookings": bookings,
+    }
+    return render(request, "booking/walkin_check.html", context)
+
+
+@login_required
 def cancel_booking(request, booking_id):
-    booking = Booking.objects.get(id=booking_id)
+    # ป้องกันไม่ให้ User ทั่วไปแอบมากดยกเลิก
+    if not request.user.is_superuser:
+        return redirect("home")
+        
+    booking = get_object_or_404(Booking, id=booking_id)
     booking.status = "cancelled"
     booking.save()
+
+    # เช็คว่า User มีอีเมลไหม (แปลว่าเป็นลูกค้าที่สมัครผ่านระบบ ไม่ใช่ Walk-in)
+    if booking.user.email:
+        # เตรียมข้อมูลวันที่และเวลาให้สวยงาม
+        b_date = booking.date.strftime("%d/%m/%Y")
+        b_time = booking.start_time.strftime("%H:%M")
+        
+        # หัวข้ออีเมล
+        subject = f"แจ้งยกเลิกการจองสนาม {booking.field.name} และรับส่วนลดพิเศษ 5%"
+        
+        # ข้อความในอีเมล (ผมแต่งคำพูดให้ดูสุภาพและง้อลูกค้าแบบเนียนๆ)
+        message = (
+            f"เรียนคุณ {booking.user.username},\n\n"
+            f"ทางเราต้องขออภัยเป็นอย่างยิ่งที่ต้องแจ้งให้ทราบว่า การจองสนาม {booking.field.name} "
+            f"ในวันที่ {b_date} เวลา {b_time} น. ของคุณ จำเป็นต้องถูกยกเลิก\n\n"
+            f"เพื่อเป็นการขออภัยในความไม่สะดวกที่เกิดขึ้น ทางเราขอมอบ 'น้ำฟรี 2 แพ็ค' สำหรับการจองสนามในครั้งถัดไปครับ!\n\n"
+            f"🎁 วิธีรับสิทธิ์: เพียงแคปหน้าจออีเมลฉบับนี้ หรือแจ้งโค้ด 'SORRY najaaa' กับแอดมินในการจองครั้งหน้า\n\n"
+            f"ขออภัยอย่างสูงและหวังเป็นอย่างยิ่งว่าจะได้ให้บริการคุณอีกครั้งนะครับ,\n"
+            f"ทีมงาน Football Field Booking"
+        )
+        
+        # ส่งอีเมล
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL, # ใช้อีเมลแอดมินที่ตั้งไว้ใน settings.py
+                [booking.user.email],        # ส่งไปหาอีเมลของลูกค้า
+                fail_silently=False,         # ถ้าส่งไม่ผ่านให้โชว์ Error (ตอนใช้งานจริงอาจเปลี่ยนเป็น True)
+            )
+        except Exception as e:
+            # ถ้าระบบส่งอีเมลพัง (เช่น เน็ตหลุด) ระบบหลักจะได้ไม่พังตาม
+            print(f"Error sending email: {e}")
+
     return redirect("booking_management")
 
 @login_required

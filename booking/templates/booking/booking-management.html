@@ -26,7 +26,14 @@
     <div class="container">
         <div class="header-section">
             <h1>จัดการการจองสนาม</h1>
-            <button class="btn approve" onclick="openAddBooking()">+ เพิ่มการจอง (Walk-in)</button>
+            
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'admin_walkin_check' %}" class="btn" style="text-decoration: none; background-color: #3b82f6; color: white; display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">
+                    📅 ดูตารางคิวว่าง
+                </a>
+                
+                <button class="btn approve" onclick="openAddBooking()">+ เพิ่มการจอง (Walk-in)</button>
+            </div>
         </div>
 
         <div class="filter-card">
