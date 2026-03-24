@@ -707,7 +707,49 @@ def approve_booking(request, booking_id):
 def reject_booking(request, booking_id):
     if not request.user.is_superuser:
         return redirect("home")
+        
     booking = get_object_or_404(Booking, id=booking_id)
     booking.status = "rejected"
     booking.save()
+
+    # --- 🔴 ส่วนที่เพิ่มเข้ามา: ส่งอีเมลแจ้งเตือนเมื่อปฏิเสธการจอง ---
+    if booking.user and booking.user.email:
+        subject = f'❌ แจ้งผลการจองสนาม: ปฏิเสธการจอง ({booking.field.name})'
+        
+        # จัดรูปแบบวันที่และเวลาให้สวยงาม
+        date_str = booking.date.strftime("%d/%m/%Y")
+        start_str = booking.start_time.strftime("%H:%M")
+        end_str = booking.end_time.strftime("%H:%M")
+
+        message = f'''
+เรียนคุณ {booking.user.username},
+
+ทางเราขออภัยที่ต้องแจ้งให้ทราบว่า การจองสนามของคุณได้รับการ "ปฏิเสธ" 
+
+⚠️ สาเหตุ: ไม่พบการอัปโหลดหลักฐานการโอนเงิน (สลิป) หรือหลักฐานการชำระเงินไม่สมบูรณ์
+
+รายละเอียดการจองที่ถูกยกเลิก:
+⚽ สนาม: {booking.field.name}
+📅 วันที่: {date_str}
+⏰ เวลา: {start_str} - {end_str}
+
+หากคุณได้ทำการชำระเงินแล้ว หรือต้องการทำการจองใหม่ กรุณาทำรายการผ่านระบบอีกครั้งพร้อมแนบหลักฐานการโอนเงินให้ครบถ้วนครับ
+
+ขออภัยในความไม่สะดวก
+ทีมงาน Football Field Booking
+        '''
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL, # ดึงอีเมลผู้ส่งจาก settings.py
+                [booking.user.email],        # ส่งไปหาอีเมลของลูกค้า
+                fail_silently=False,
+            )
+        except Exception as e:
+            # ป้องกันระบบค้างหากส่งอีเมลไม่สำเร็จ
+            print(f"เกิดข้อผิดพลาดในการส่งอีเมลแจ้งปฏิเสธ: {e}")
+    # -----------------------------------------------
+
     return redirect("booking_management")
